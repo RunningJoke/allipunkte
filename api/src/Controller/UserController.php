@@ -86,6 +86,11 @@ class UserController extends AbstractController
     {
         $entityManager = $doctrine->getManager();
         $currentCycle = $entityManager->getRepository(Cycle::class)->findCurrentCycle();
+
+        if($currentCycle === null) {
+        //if no cycle is active, no score needs to be added
+            return;
+        }
         
         $score = new Score();
         $score->setAmount(0);
