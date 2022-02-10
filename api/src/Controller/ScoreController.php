@@ -26,7 +26,7 @@ class ScoreController extends AbstractController
     }
     
     /**
-     * @Route("/api/myScore", name="actualScore", methods={"GET"})
+     * @Route("/myScore", name="actualScore", methods={"GET"})
      */
     public function getScoreOfLoggedInUser(Request $request) {
         $this->denyAccessUnlessGranted("ROLE_USER");
@@ -47,7 +47,7 @@ class ScoreController extends AbstractController
     
     
     /**
-     * @Route("/api/transfers", name="own_transfers", methods={"GET"})
+     * @Route("/transfers", name="own_transfers", methods={"GET"})
      */
     public function getList( Request $request)
     {
@@ -72,7 +72,7 @@ class ScoreController extends AbstractController
     }
     
     /**
-     * @Route("/api/transfer", name="score_transfer", methods={"POST"})
+     * @Route("/transfer", name="score_transfer", methods={"POST"})
      */
     public function transfer( Request $request)
     {
@@ -98,7 +98,7 @@ class ScoreController extends AbstractController
         
         foreach($jsonArray as $transaction)
         {
-            $transactionObject = $this->buildTransaction($transaction, $currentCycle);    
+            $transactionObject = $this->buildTransaction($transaction, $currentCycle);   
             $this->transferPoints($transactionObject,$currentCycle);   
         }
 
@@ -153,13 +153,13 @@ class ScoreController extends AbstractController
         }
 
         //cant give negative points
-        if($transactionAmountInt <= 0) { return null; }
+        if($transactionAmountInt <= 0) { throw new BadRequestException("can't send negative points"); }
 
         //cant send points to himself
-        if($transactionOriginUser === $transactionTargetUser) { return null; }
+        if($transactionOriginUser === $transactionTargetUser) { throw new BadRequestException("can't send points to yourself"); }
 
         //insufficient rights to create points
-        if($transactionCreatePoints && !$canCreateScores) { return null; }
+        if($transactionCreatePoints && !$canCreateScores) { throw new BadRequestException("not allowed to create points"); }
         
         $transactionEntity = new Transaction();        
         $transactionEntity->setCycle($currentCycle);
