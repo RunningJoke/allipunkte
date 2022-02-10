@@ -1,10 +1,10 @@
 <template>
     <div>
         <b-form-input 
-            v-model="curValue" 
             type="text" 
-            @input="$emit('input',$event)" 
-            @change="$emit('input',$event)" 
+            @input="sendUpdate($event)" 
+            @change="sendUpdate($event)" 
+            :value="curValue"
             placeholder="User" 
             :list="$id('userlist')" 
             :state="validUser">
@@ -30,7 +30,13 @@ export default {
     watch: {
         'value' : function() { this.curValue = this.value }
     },
-    
+    methods: {
+        sendUpdate: function(value) {
+            //try to convert to user object
+            this.curValue = value
+            this.$emit('input',value)
+        }
+    },
     computed: {
         dataUserList: (vm) => {
 			if(vm.curValue && vm.curValue.length > 2) {
