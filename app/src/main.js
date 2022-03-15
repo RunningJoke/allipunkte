@@ -7,6 +7,7 @@ import router from './router'
 import store from './store'
 import { BootstrapVue, IconsPlugin } from 'bootstrap-vue'
 import uniqid from '@/plugins/uniqid'
+import { requestManager } from '@/plugins/requestManager.js'
 
 
 // Install BootstrapVue
@@ -15,6 +16,7 @@ Vue.use(BootstrapVue)
 Vue.use(IconsPlugin)
 
 Vue.use(uniqid)
+Vue.use(requestManager)
 
 import 'bootstrap/dist/css/bootstrap.css'
 import 'bootstrap-vue/dist/bootstrap-vue.css'

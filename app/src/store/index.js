@@ -3,7 +3,7 @@ import Vuex from 'vuex'
 import config from '@/config.json'
 import router from '@/router'
 
-const axios = require('axios')
+import { requestManager } from '@/plugins/requestManager'
 
 Vue.use(Vuex)
 const store = new Vuex.Store({
@@ -26,46 +26,31 @@ const store = new Vuex.Store({
   actions: {
 	logInUser: async function(context, payload) {
 		if(!payload?.username || !payload?.password) return false
-		let response = await fetch(config.baseUrl+"jlogin", {
-			method: 'POST',
-			credentials: 'include',
-			headers: {
-				'Accept' : 'application/json',
-				'Content-Type' : 'application/json'
-			},
-			body: JSON.stringify({ "username" : payload.username , "password" : payload.password })
+		try {
+		let response = await requestManager.sendJsonRequest(config.baseUrl+"jlogin", 'POST', { "username" : payload.username , "password" : payload.password })
 
-		})
-		if(!response.ok) {
+		} catch {
 			throw new Error('login failed')
 		}
 	},
 	loadUserData: async function(context) {
 		try {
-			//axiosRequest = axios.get(config.baseUrl+"updateUserData", {withCredentials: true})
-			let response = await fetch(config.baseUrl+"updateUserData", {
-				method: 'POST',
-				credentials: 'include',
-				headers: {
-					'Accept' : 'application/json',
-					'Content-Type' : 'application/json'
-				}
-	
-	
-				})
-			
-			context.commit("setLoggedInUser", response.data.user)
-			context.commit("setCurrentSeason", response.data.cycle)
-			context.commit("setUserScore", response.data.userScore)
-			context.commit("setTargetScore", response.data.targetScore)
+			let responseBody = await requestManager.sendJsonRequest(config.baseUrl+"updateUserData")
+			//add field validation
+			context.commit("setLoggedInUser", responseBody)
+			context.commit("setCurrentSeason", responseBody.cycle)
+			context.commit("setUserScore", responseBody.userScore)
+			context.commit("setTargetScore", responseBody.targetScore)
 			await Promise.all([context.dispatch("getTransactions"), context.dispatch("getUsers")])
 		} catch {
+			//add error handling
+			this._vm.$bvToast.toast('Laden der Daten fehlgeschlagen', {variant: 'danger'})
 
 		}
 	},
 	logoutUser: async function(context) {
 		try {
-			await axios.get(config.baseUrl+"jlogout", {withCredentials: true})
+			await requestManager.sendJsonRequest(config.baseUrl+"jlogout")
 		} finally {	
 			//always clear the store even if the logout fails	
 			context.commit("setLoggedInUser", {})
@@ -76,26 +61,29 @@ const store = new Vuex.Store({
 	},
 	updateScoreFromDB: async function(context) {
 		try {
-			let response = await axios.get(config.baseUrl+"api/myScore", {headers: {"Accept" : "application/json"}, withCredentials: true})
+			let response = await requestManager.sendJsonRequest(config.baseUrl+"myScore")
 			context.commit('setUserScore',response.data.userScore)
 		} catch {
 			context.commit('setUserScore',0)
+			this._vm.$bvToast.toast('Benutzerdaten konnten nicht geladen werden', {variant: 'danger'})
 		}
 	},
 	getTransactions: async function(context, payload) {
 		try {
-			let response = await axios.get(config.baseUrl+"api/transfers", {headers: {"Accept" : "application/json"}, withCredentials: true})
-			context.commit('setTransactions',response.data)
+			let response = await requestManager.sendJsonRequest(config.baseUrl+"transfers")
+			context.commit('setTransactions',response)
 		} catch {
 			context.commit('setTransactions',[])
+			this._vm.$bvToast.toast('Transaktionen konnten nicht geladen werden', {variant: 'danger'})
 		}
 	},
 	getUsers: async function(context) {
 		try {
-			let response = axios.get(config.baseUrl+"api/users", {headers: {"Accept" : "application/json"}, withCredentials: true})
-			context.commit('setUserList',response.data)
+			let data = await requestManager.sendJsonRequest(config.baseUrl+"users")
+			context.commit('setUserList',data)
 		} catch {
 			context.commit('setUserList',[])
+			this._vm.$bvToast.toast('Benutzer konnten nicht geladen werden', {variant: 'danger'})
 		}
 	}
 	  
@@ -106,22 +94,22 @@ const store = new Vuex.Store({
 	  isLoggedIn: state => state.loggedInUser.username !== undefined,
 	  getUser: state => state.loggedInUser,
 	  getUsers: state => state.userList,
-	  getUserIRI: state => "/api/users/"+state.loggedInUser.id,
+	  getUserIRI: state => "/users/"+state.loggedInUser.id,
 	  isLoggedInUserAdmin: state => state.loggedInUser && state.loggedInUser.roles && state.loggedInUser.roles.includes("ROLE_ADMIN"),
 	  getTransactions: state => state.transactions,
 	  getSentTransactions: (state) => {
-		  return state.transactions && state.transactions.filter((item) => (item.origin === "/api/users/"+state.loggedInUser.id))
+		  return state.transactions && state.transactions.filter((item) => (item.origin === "/users/"+state.loggedInUser.id))
 	  },
 	  getReceivedTransactions: (state) => {
-		  return state.transactions && state.transactions.filter((item) => (item.target === "/api/users/"+state.loggedInUser.id))
+		  return state.transactions && state.transactions.filter((item) => (item.target === "/users/"+state.loggedInUser.id))
 	  },
-	  getUserFromIRI: (state) => (item) =>  state.userList.filter((iter) => "/api/users/"+iter.id === item )[0],
+	  getUserFromIRI: (state) => (item) =>  state.userList.filter((iter) => "/users/"+iter.id === item )[0],
 	  getUserFromName: (state) => (userName) => {
 			if(state.userList.length == 0) { return "" }
 			let selectedUser = state.userList.filter((user) => {
 				return (user.firstname +" "+ user.lastname) === userName })
 			if(selectedUser.length === 1) {
-				return "/api/users/"+selectedUser[0].id
+				return "/users/"+selectedUser[0].id
 			}
 			return false
 		}

@@ -56,12 +56,14 @@
 <script>
 import transactionForm from '@/components/TransactionForm'
 import config from '@/config.json'
-const axios = require('axios')
 
 export default {
 	name: "About",
 	components: {
 		'transactionForm' : transactionForm
+	},
+	created() {
+		this.$store.dispatch("loadUserData")
 	},
 	methods: {
 		removeRow(idx) {
@@ -94,9 +96,9 @@ export default {
 			this.error = false
 			
 			try {
-				let response = await axios.post(config.baseUrl+"api/transfer",JSON.stringify(sendData), {withCredentials: true, headers: {'Content-Type': 'application/json'}})
+				let response = await this.$request.sendJsonRequest(config.baseUrl+"transfer",'POST',sendData)
 				
-				this.$store.commit('setUserScore', response.data.userScore)
+				this.$store.commit('setUserScore', response.userScore)
 				this.$bvToast.toast('Punkte erfolgreich gesendet', {variant: 'success'})
 				this.commits = [{}]
 			} catch {

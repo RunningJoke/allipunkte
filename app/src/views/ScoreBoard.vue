@@ -6,28 +6,30 @@
 				:key="'transaction-'+idx"
 				:variant="item['@variant']" 
 				class="mx-1">
-				<b-media>
-					<template v-slot:aside>
+				<div class="d-flex flex-wrap">
+					<div class="w-25 text-left mr-2">
 						<h1><b-badge :variant="item['@variant']">
 							{{ item['@icon']}} {{ item.amount }}</b-badge>
 						</h1>
-					</template>
-					<div>{{ item.description }}</div>
-					<div class="d-flex justify-content-between">
-						<div class="text-black-50">
-							{{ item['@date'] }}
-						</div>
-						<div class="text-black-50" >
-							<template v-if="!item['@targetUser']">
-							gelöschter Benutzer
-							</template>
-							<template v-else>
-								{{ item['@targetUser'].firstname }} {{ item['@targetUser'].lastname }}
-							</template>
-						</div>
-							
 					</div>
-				</b-media>				
+					<div class="flex-grow-1">
+						<div class="text-left">{{ item.description }}</div>
+						<div class="d-flex justify-content-between">
+							<div class="text-black-50">
+								{{ item['@date'] }}
+							</div>
+							<div class="text-black-50" >
+								<template v-if="!item['@targetUser']">
+								gelöschter Benutzer
+								</template>
+								<template v-else>
+									{{ item['@targetUser'].firstname }} {{ item['@targetUser'].lastname }}
+								</template>
+							</div>
+								
+						</div>
+						</div>
+				</div>				
 			</b-list-group-item>
 		</b-list-group>
 	</div>
@@ -66,17 +68,17 @@ export default {
 	name: "ScoreBoard",
 	created() {
 		this.$store.dispatch("loadUserData")
-		this.$store.dispatch("getTransactions")
 	},
 	computed: {
 		transactions: function(vm) {
-			let transactionsForLoop = vm.$store.getters.getTransactions.slice().reverse()
+			let transactionsForLoop = JSON.parse(JSON.stringify(vm.$store.getters.getTransactions)).slice().reverse()
 			transactionsForLoop.forEach(transaction => {
 				transaction['@variant'] = vm.transactionVariant(transaction)
 				transaction['@date'] = vm.formatDateTime(transaction)
 				transaction['@icon'] = transaction['@variant'] == "success" ? '+' : '-'
 				transaction['@targetUser'] = vm.transactionSenderOrReceiver(transaction)
 			})
+			return transactionsForLoop
 		}
 	},
 	methods: {

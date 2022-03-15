@@ -23,7 +23,6 @@
             <b-col 
                 class="my-1 d-flex justify-content-end">
                 <b-button 
-                    v-if="idx > 0"
                     type="button" 
                     variant="danger"  
                     @click="$emit('delete')">-</b-button>

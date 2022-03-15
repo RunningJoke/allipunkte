@@ -1,5 +1,9 @@
 <template>
   <div id="app">
+    <b-nav>
+      <b-link to="/send">Senden</b-link>
+      <b-link to="/score">Punkte</b-link>
+    </b-nav>
     <router-view/>
   </div>
 </template>
