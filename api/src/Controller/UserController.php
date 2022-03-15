@@ -2,32 +2,32 @@
 
 namespace App\Controller;
 
-use App\Entity\User;
-use App\Entity\Cycle;
-use App\Entity\Score;
-use Doctrine\Persistence\ManagerRegistry;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
+use App\Services\UserFactoryInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
-use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 
 class UserController extends AbstractController
 {
-    private $pwEncoder;
+    private $userFactory;
     
-    public function __construct(UserPasswordHasherInterface $pwEncoder) {
-        $this->pwEncoder = $pwEncoder;
+    public function __construct(
+        UserFactoryInterface $userFactory) {
+
+        $this->userFactory = $userFactory;
     }
     
     /**
+     * 
+     * 
+     * 
      * @Route("api/users", name="user_create", methods={"POST"})
      */
     public function createNew(Request $request)
     {
         $this->denyAccessUnlessGranted("ROLE_ADMIN");
         
-        $em = $this->getDoctrine()->getManager();
         
         /**
          * @var UserInterface
@@ -44,60 +44,25 @@ class UserController extends AbstractController
         {
             return new JsonResponse(['illegal request format'],400);
         }
-        
-        
-        $newUser = new User();
-        
-        $newUser->setFirstname($jsonArray['firstname']);
-        $newUser->setLastname($jsonArray['lastname']);
-        $newUser->setUsername($jsonArray['username']);
-        $newUser->setMail($jsonArray['mail']);
-        $newUser->setLicense($jsonArray['license']);
-        
-        
-        $encodedPassword = $this->pwEncoder->hashPassword($newUser, $jsonArray['license']);
-        
-        $newUser->setPassword($encodedPassword);
-        
-        $roleArray = ['ROLE_USER'];
-        
-        //only admins can grant additional roles
-        if(($jsonArray['isAdmin'] ?? false) && $currentUser->isGranted('ROLE_ADMIN')) {
-            $roleArray[] = 'ROLE_ADMIN';
-        }
-        if(($jsonArray['isCreator'] ?? false) && $currentUser->isGranted('ROLE_ADMIN')) {
-            $roleArray[] = 'ROLE_CREATOR';
+
+        if(!$currentUser->isGranted('ROLE_ADMIN')) {
+            return new JsonResponse(['status' => 403, 'message' => 'missing access rights'], 403);
         }
         
-        $newUser->setRoles($roleArray);
-        
-        $this->addScoreEntry($newUser, (int)$jsonArray['targetAmount']);
-        
-        $em->persist($newUser);
-        
-        $em->flush();
+        $newUser = $this->userFactory->createNewUser(
+            $jsonArray['firstname'],
+            $jsonArray['lastname'],
+            $jsonArray['username'],
+            $jsonArray['mail'],
+            $jsonArray['license'],
+            $jsonArray['targetAmount'],
+            $jsonArray['isAdmin'] ?? false,
+            $jsonArray['isCreator'] ?? false
+        );
+                
         
         return new JsonResponse($jsonArray,201);
         
     }
     
-     
-    private function addScoreEntry(User $user, int $targetAmount,ManagerRegistry $doctrine)
-    {
-        $entityManager = $doctrine->getManager();
-        $currentCycle = $entityManager->getRepository(Cycle::class)->findCurrentCycle();
-
-        if($currentCycle === null) {
-        //if no cycle is active, no score needs to be added
-            return;
-        }
-        
-        $score = new Score();
-        $score->setAmount(0);
-        $score->setCycle($currentCycle);
-        $score->setUser($user);
-        $score->setTargetAmount($targetAmount);
-        $entityManager->persist($score);
-        
-    }
 }
