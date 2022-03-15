@@ -24,7 +24,11 @@ api: Api is the backend server.
 3. Configure your database connection in [.env](api/.env) or create a new .env.local
 4. Run `php bin/console doctrine:database:create` to create the database
 5. Run `php bin/console doctrine:migrations:migrate` and confirm to create the required tables
-6. Start the server with `symfony serve` or similar
+6. Run `php bin/console doctrine:fixtures:load` and confirm to purge and fill the database with a cycle and three users (password for all three is 1234):
+    - admin (Peter Administrator)
+    - creator (Isabell Erstellerin)
+    - basic (Marta Standard)
+7. Start the server with `symfony serve` or similar
 
 app: The vue frontend.
 
