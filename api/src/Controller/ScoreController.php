@@ -83,7 +83,8 @@ class ScoreController extends AbstractController
          */
         $cycleRepo = $this->em->getRepository(Cycle::class);      
         $currentCycle = $cycleRepo->findCurrentCycle();
-        if($currentCycle === null) {
+        //dont allow transactions when there is no cycle or the current cycle has been closed
+        if($currentCycle === null || $currentCycle->getStatus() == Cycle::STATUS_CLOSED) {
             //stop execution right here
             return new JsonResponse(['userScore' => 0]);
         }
