@@ -23,6 +23,17 @@ use Symfony\Component\Serializer\Annotation\Groups;
  */
 class Cycle
 {
+
+    /**
+     * a cycle with open status can still accept transactions
+     */
+    const STATUS_OPEN = 0;
+
+    /**
+     * a closed cycle should no longer accept new transactions and be locked in its current state
+     */
+    const STATUS_CLOSED = 1;
+
     /**
      * @ORM\Id()
      * @ORM\GeneratedValue()
@@ -59,6 +70,11 @@ class Cycle
      * @ORM\OneToMany(targetEntity="App\Entity\Transaction", mappedBy="cycle", orphanRemoval=true)
      */
     private $transactions;
+
+    /**
+     * @ORM\Column(type="integer", options={"default" : 0})
+     */
+    private $status;
 
     public function __construct()
     {
@@ -193,6 +209,18 @@ class Cycle
                 $transaction->setCycle(null);
             }
         }
+
+        return $this;
+    }
+
+    public function getStatus(): ?int
+    {
+        return $this->status;
+    }
+
+    public function setStatus(int $status): self
+    {
+        $this->status = $status;
 
         return $this;
     }
