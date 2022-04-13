@@ -10,6 +10,31 @@ use ApiPlatform\Core\Annotation\ApiResource;
  */
 class Score
 {
+
+    /**
+     * PAYMENT_NOTSET is the default value for active scores.
+     * During a cycle, the score should not request any payment.
+     * Closing a cycle should set the payment to either NOTREQUIRED or PENDING
+     */
+    const PAYMENT_NOTSET = 0;
+    
+    /**
+     * PAYMENT_NOTREQUIRED is the value the score should get if the user achieved the targetAmount
+     * and the cycle is closed
+     */
+    const PAYMENT_NOTREQUIRED = 1;
+
+    /**
+     * PAYMENT_PENDING should be set, if the cycle is closed and the target amount was not achieved
+     */
+    const PAYMENT_PENDING = 2;
+
+    /**
+     * PAYMENT_FULFILLED this must be set if the payment status was pending and the payment was processed
+     */
+    const PAYMENT_FULFILLED = 3;
+
+
     /**
      * @ORM\Id()
      * @ORM\GeneratedValue()
@@ -38,6 +63,11 @@ class Score
      * @ORM\Column(type="integer")
      */
     private $targetAmount;
+
+    /**
+     * @ORM\Column(type="integer", nullable=true, options={"default" : 0})
+     */
+    private $paymentStatus;
 
     public function getId(): ?int
     {
@@ -88,6 +118,18 @@ class Score
     public function setTargetAmount(int $targetAmount): self
     {
         $this->targetAmount = $targetAmount;
+
+        return $this;
+    }
+
+    public function getPaymentStatus(): ?int
+    {
+        return $this->paymentStatus;
+    }
+
+    public function setPaymentStatus(?int $paymentStatus): self
+    {
+        $this->paymentStatus = $paymentStatus;
 
         return $this;
     }
