@@ -76,6 +76,13 @@ class Cycle
      */
     private $status;
 
+    /**
+     * @ORM\Column(type="integer", options={"default" : 0})
+     * 
+     * cost per point is saving the data in cents!
+     */
+    private $costPerPoint;
+
     public function __construct()
     {
         $this->scores = new ArrayCollection();
@@ -221,6 +228,18 @@ class Cycle
     public function setStatus(int $status): self
     {
         $this->status = $status;
+
+        return $this;
+    }
+
+    public function getCostPerPoint(): ?int
+    {
+        return $this->costPerPoint;
+    }
+
+    public function setCostPerPoint(int $costPerPoint): self
+    {
+        $this->costPerPoint = $costPerPoint;
 
         return $this;
     }
