@@ -34,7 +34,8 @@ class TestFixtures extends Fixture
         $cycle  ->setName('Testzyklus')
                 ->setDescription('Zyklus zum Testen erstellt durch die Fixture')
                 ->setFromDate($today)
-                ->setToDate($endOfCycle);
+                ->setToDate($endOfCycle)
+                ->setStatus(Cycle::STATUS_OPEN);
 
         $manager->persist($cycle);
         $manager->flush();

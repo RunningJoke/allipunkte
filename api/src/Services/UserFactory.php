@@ -87,6 +87,7 @@ class UserFactory implements UserFactoryInterface {
         $score->setCycle($currentCycle);
         $score->setUser($user);
         $score->setTargetAmount($targetAmount);
+        $score->setPaymentStatus(Score::PAYMENT_NOTSET);
         $this->em->persist($score);
         
     }
