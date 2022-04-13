@@ -93,7 +93,8 @@ class SecurityController extends AbstractController
             'userScore' => $currentUserScore->getAmount(),
             'targetScore' => $currentUserScore->getTargetAmount(),
             'cycle' => $currentSeasonArray,
-            'roles' => $currentUser->getRoles()
+            'isAdmin' =>$currentUser->isIsAdmin(),
+            'isCreator' => $currentUser->isIsCreator()
         ];
         
         

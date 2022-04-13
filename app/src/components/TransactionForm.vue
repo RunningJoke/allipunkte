@@ -5,7 +5,7 @@
     >
         <b-row>
             <b-col
-                v-if="isAdmin"  
+                v-if="canCreate"  
                 class="my-1 d-flex justify-content-start"
             >
                 <b-form-checkbox 
@@ -92,7 +92,7 @@ export default {
         }
     },
     computed: {
-        isAdmin: (vm) => vm.$store.getters.isLoggedInUserAdmin
+        canCreate: (vm) => vm.$store.getters.isLoggedInUserAdmin || vm.$store.getters.isLoggedInUserCreator
     },
     methods: {
 

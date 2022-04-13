@@ -89,13 +89,15 @@ const store = new Vuex.Store({
 	  
   },
   getters: {
+	  baseUrl: state => config.baseUrl,
 	  getUserScore: state => state.userScore,
 	  getTargetScore: state => state.targetScore,
 	  isLoggedIn: state => state.loggedInUser.username !== undefined,
 	  getUser: state => state.loggedInUser,
 	  getUsers: state => state.userList,
 	  getUserIRI: state => "/users/"+state.loggedInUser.id,
-	  isLoggedInUserAdmin: state => state.loggedInUser && state.loggedInUser.roles && state.loggedInUser.roles.includes("ROLE_ADMIN"),
+	  isLoggedInUserAdmin: state => state?.loggedInUser?.isAdmin ?? false,
+	  isLoggedInUserCreator: state => state?.loggedInUser?.isCreator ?? false,
 	  getTransactions: state => state.transactions,
 	  getSentTransactions: (state) => {
 		  return state.transactions && state.transactions.filter((item) => (item.origin === "/users/"+state.loggedInUser.id))
