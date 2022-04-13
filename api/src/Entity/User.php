@@ -135,7 +135,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     }
 
     /**
-     * @Groups({"USER_READ"})
+     * @Groups({"USER_READ_ADMIN"})
      */
     public function getUsername(): ?string
     {
@@ -150,12 +150,13 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     }
 
     /**
-     * @Groups({"USER_READ"})
+     * @Groups({"USER_READ_ADMIN"})
      */
     public function getLicense(): ?string
     {
         return $this->license;
     }
+
 
     public function setLicense(string $license): self
     {
@@ -177,7 +178,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     }
 
     /**
-     * @Groups({"USER_READ"})
+     * @Groups({"USER_READ_ADMIN"})
      */
     public function getMail(): ?string
     {
@@ -196,9 +197,6 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     }
 
     
-    /**
-     * @Groups({"USER_READ"})
-     */
     public function getRoles() : array {
         //always add the user role to an authenticated user           
         return  array_merge($this->roles,["ROLE_USER"]);
@@ -310,6 +308,22 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
                 ->filter(function($score) use (&$cycle) { return ($score->getCycle() === $cycle); })
                 ->first();
                 
+    }
+
+    /**
+     * @Groups({"USER_READ_ADMIN"})
+     */
+    public function isIsCreator() : bool
+    {
+        return in_array('ROLE_CREATOR',$this->getRoles());
+    }
+    
+    /**
+     * @Groups({"USER_READ_ADMIN"})
+     */
+    public function isIsAdmin() : bool
+    {
+        return in_array('ROLE_ADMIN',$this->getRoles());
     }
     
 }

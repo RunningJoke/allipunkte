@@ -38,16 +38,23 @@ class UserController extends AbstractController
         
         $jsonFields = array_keys($jsonArray);
         
-        $valid = count(array_diff($jsonFields, ['firstname','lastname','username','mail','license','targetAmount'])) == 0;
+        $valid = count(array_diff($jsonFields, 
+            ['firstname',
+            'lastname',
+            'username',
+            'mail',
+            'license',
+            'targetAmount',
+            'isAdmin',
+            'isCreator'])) == 0;
         
         if(!$valid)
         {
             return new JsonResponse(['illegal request format'],400);
         }
 
-        if(!$currentUser->isGranted('ROLE_ADMIN')) {
-            return new JsonResponse(['status' => 403, 'message' => 'missing access rights'], 403);
-        }
+        $this->denyAccessUnlessGranted('ROLE_ADMIN');
+
         
         $newUser = $this->userFactory->createNewUser(
             $jsonArray['firstname'],
