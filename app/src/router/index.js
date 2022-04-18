@@ -5,6 +5,7 @@ import Sending from '../views/SendPoints.vue'
 import ScoreBoard from '@/views/ScoreBoard'
 import Admin from '@/views/Admin/Admin.vue'
 import AdminUsers from '@/views/Admin/Users/Users.vue'
+import AdminCycles from '@/views/Admin/Cycles/Cycles.vue'
 
 Vue.use(VueRouter)
 
@@ -35,6 +36,10 @@ const routes = [
       {
         path: 'users',
         component: AdminUsers
+      },
+      {
+        path: 'cycles',
+        component: AdminCycles
       }
     ]
   }

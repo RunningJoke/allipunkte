@@ -232,6 +232,9 @@ class Cycle
         return $this;
     }
 
+    /**
+     * @Groups({"CYCLE_READ"})
+     */
     public function getCostPerPoint(): ?int
     {
         return $this->costPerPoint;

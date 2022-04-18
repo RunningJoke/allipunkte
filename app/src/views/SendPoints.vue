@@ -62,9 +62,6 @@ export default {
 	components: {
 		'transactionForm' : transactionForm
 	},
-	created() {
-		this.$store.dispatch("loadUserData")
-	},
 	methods: {
 		removeRow(idx) {
 			this.commits.splice(idx,1)

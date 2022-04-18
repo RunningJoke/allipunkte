@@ -66,9 +66,7 @@ const moment = require('moment')
 
 export default {
 	name: "ScoreBoard",
-	created() {
-		this.$store.dispatch("loadUserData")
-	},
+	
 	computed: {
 		transactions: function(vm) {
 			let transactionsForLoop = JSON.parse(JSON.stringify(vm.$store.getters.getTransactions)).slice().reverse()

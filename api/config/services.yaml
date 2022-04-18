@@ -24,7 +24,7 @@ services:
     # add more service definitions when explicit configuration is needed
     # please note that last definitions always *replace* previous ones
 
-    'App\Serializer\UserContextBuilder':
+    'App\Serializer\ContextBuilder\UserContextBuilder':
         decorates: 'api_platform.serializer.context_builder'
-        arguments: [ '@App\Serializer\UserContextBuilder.inner' ]
+        arguments: [ '@App\Serializer\ContextBuilder\UserContextBuilder.inner' ]
         autoconfigure: false

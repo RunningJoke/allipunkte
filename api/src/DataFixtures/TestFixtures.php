@@ -7,7 +7,7 @@ use DateInterval;
 use App\Entity\Cycle;
 use Doctrine\Persistence\ObjectManager;
 use Doctrine\Bundle\FixturesBundle\Fixture;
-use App\Services\UserFactoryInterface;
+use App\Services\UserFactory\UserFactoryInterface;
 
 class TestFixtures extends Fixture
 {
