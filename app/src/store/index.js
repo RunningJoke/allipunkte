@@ -5,12 +5,15 @@ import router from '@/router'
 
 import { requestManager } from '@/plugins/requestManager'
 
+import moment from 'moment'
+
 Vue.use(Vuex)
 const store = new Vuex.Store({
   state: {
 	  currentSeason: {},
 	  loggedInUser: {},
 	  userList: [],
+	  cycleList: [],
 	  transactions: [],
 	  userScore: 0,
 	  targetScore: 0
@@ -21,7 +24,17 @@ const store = new Vuex.Store({
 	  setCurrentSeason(state, value) { state.currentSeason = value },
 	  setLoggedInUser(state, value) { state.loggedInUser = value },
 	  setUserScore(state, value) { state.userScore = value },
-	  setTargetScore(state, value) { state.targetScore = value }
+	  setTargetScore(state, value) { state.targetScore = value },
+	  setCycles(state, value) { 
+		  state.cycleList = value.map(v => {
+			  let fromDateObj = moment(v.fromDate)
+			  let toDateObj = moment(v.toDate)
+			return {
+			  ...v,
+			  toDate: toDateObj.format('YYYY-MM-DD'),
+			  fromDate: fromDateObj.format('YYYY-MM-DD')
+		  } })
+		}
   },
   actions: {
 	logInUser: async function(context, payload) {
@@ -41,11 +54,32 @@ const store = new Vuex.Store({
 			context.commit("setCurrentSeason", responseBody.cycle)
 			context.commit("setUserScore", responseBody.userScore)
 			context.commit("setTargetScore", responseBody.targetScore)
-			await Promise.all([context.dispatch("getTransactions"), context.dispatch("getUsers")])
+			
+			let promiseArray = [context.dispatch("getTransactions"), context.dispatch("getUsers")]
+			
+
+			if(context.getters.isLoggedInUserAdmin) {
+				promiseArray.push(context.dispatch('loadAdminData'))
+			}
+			
+			
+			await Promise.all(promiseArray)
+
 		} catch {
 			//add error handling
 			this._vm.$bvToast.toast('Laden der Daten fehlgeschlagen', {variant: 'danger'})
 
+		}
+	},
+	loadAdminData: async function(context) {
+		if(!context.getters.isLoggedInUserAdmin) return
+		try {
+			let responseBody = await requestManager.sendJsonRequest(config.baseUrl+"cycles")
+			//add field validation
+			context.commit("setCycles", responseBody)
+		} catch {
+			//add error handling
+			this._vm.$bvToast.toast('Laden der Daten fehlgeschlagen', {variant: 'danger'})
 		}
 	},
 	logoutUser: async function(context) {
@@ -95,6 +129,7 @@ const store = new Vuex.Store({
 	  isLoggedIn: state => state.loggedInUser.username !== undefined,
 	  getUser: state => state.loggedInUser,
 	  getUsers: state => state.userList,
+	  getCycles: state => state.cycleList,
 	  getUserIRI: state => "/users/"+state.loggedInUser.id,
 	  isLoggedInUserAdmin: state => state?.loggedInUser?.isAdmin ?? false,
 	  isLoggedInUserCreator: state => state?.loggedInUser?.isCreator ?? false,
