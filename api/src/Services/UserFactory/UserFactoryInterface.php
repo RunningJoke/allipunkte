@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Services;
+namespace App\Services\UserFactory;
 
 use App\Entity\User;
 

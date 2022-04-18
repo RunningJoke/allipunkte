@@ -1,7 +1,7 @@
 <?php
 // api/src/Serializer/BookContextBuilder.php
 
-namespace App\Serializer;
+namespace App\Serializer\ContextBuilder;
 
 use ApiPlatform\Core\Serializer\SerializerContextBuilderInterface;
 use Symfony\Component\HttpFoundation\Request;

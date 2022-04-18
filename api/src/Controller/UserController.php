@@ -2,9 +2,9 @@
 
 namespace App\Controller;
 
+use App\Services\UserFactory\UserFactoryInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
-use App\Services\UserFactoryInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 
