@@ -7,7 +7,7 @@
       label="Aktuelles Passwort"
       label-for="input-horizontal"
 		>
-		<b-form-input type="text" v-model="password.oldPassword" ></b-form-input>
+		<b-form-input type="password" v-model="password.oldPassword" ></b-form-input>
 	</b-form-group>
 	<b-form-group
       id="fieldset-horizontal"
@@ -16,7 +16,7 @@
       label="Neues Passwort"
       label-for="input-horizontal"
 		>
-		<b-form-input type="text" v-model="password.newPassword" ></b-form-input>
+		<b-form-input type="password" v-model="password.newPassword" ></b-form-input>
 	</b-form-group>
 	<b-form-group
       id="fieldset-horizontal"
@@ -27,7 +27,7 @@
 		>
 		<b-form-input type="password" v-model="password.newPasswordVerification" ></b-form-input>
 	</b-form-group>
-	<b-button type="submit" :disabled="password.newPassword != password.newPasswordVerification">
+	<b-button type="submit" variant="success"  :disabled="password.newPassword != password.newPasswordVerification">
 		<b-spinner size="sm" v-if="isProcessing" class="mr-2" /> Passwort ändern
 	</b-button>
   </b-form>
