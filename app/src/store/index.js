@@ -41,12 +41,14 @@ const store = new Vuex.Store({
 		if(!payload?.username || !payload?.password) return false
 		try {
 		let response = await requestManager.sendJsonRequest(config.baseUrl+"jlogin", 'POST', { "username" : payload.username , "password" : payload.password })
-
+			context.dispatch('loadUserData')
 		} catch {
 			throw new Error('login failed')
 		}
 	},
 	loadUserData: async function(context) {
+		if(!context.getters.isLoggedIn) return
+		
 		try {
 			let responseBody = await requestManager.sendJsonRequest(config.baseUrl+"updateUserData")
 			//add field validation

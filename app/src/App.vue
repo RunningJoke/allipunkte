@@ -3,12 +3,23 @@
     <b-nav>
       <b-link to="/send">Senden</b-link>
       <b-link to="/score">Punkte</b-link>
+      <b-link to="/changePassword">Passwort ändern</b-link>
+      <b-link @click="logout">Logout</b-link>
       <b-link to="/admin" v-if="$store.getters.isLoggedInUserAdmin">Admin</b-link>
     </b-nav>
     <router-view/>
   </div>
 </template>
-
+<script>
+export default {
+  name: "Main",
+  methods: {
+    logout() {
+      this.$store.dispatch('logoutUser')
+    }
+  }
+}
+</script>
 <style lang="scss">
 @import "~@/assets/scss/vendors/bootstrap-vue/index";
 #app {
