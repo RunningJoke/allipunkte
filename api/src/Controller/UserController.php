@@ -2,20 +2,33 @@
 
 namespace App\Controller;
 
-use App\Services\UserFactory\UserFactoryInterface;
+use App\Repository\UserRepository;
+use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\Security\Core\Security;
 use Symfony\Component\Routing\Annotation\Route;
+use App\Services\UserFactory\UserFactoryInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 
 class UserController extends AbstractController
 {
-    private $userFactory;
+    private UserFactoryInterface $userFactory;
+    private UserRepository $userRepository;
+    private UserPasswordHasherInterface $passwordHasher;
+    private EntityManagerInterface $em;
     
     public function __construct(
-        UserFactoryInterface $userFactory) {
+        UserFactoryInterface $userFactory,
+        UserRepository $userRepository,
+        UserPasswordHasherInterface $passwordHasher,
+        EntityManagerInterface $em) {
 
         $this->userFactory = $userFactory;
+        $this->userRepository = $userRepository;
+        $this->passwordHasher = $passwordHasher;
+        $this->em = $em;
     }
     
     /**
@@ -71,5 +84,37 @@ class UserController extends AbstractController
         return new JsonResponse($jsonArray,201);
         
     }
+
+    /**
+     * @Route("/updatePassword", name="user_update_password", methods={"POST"})
+     */
+    public function updatePassword(Request $request, Security $security)
+    {        
+        
+        /**
+         * @var UserInterface
+         */
+        $currentUser = $security->getUser();
+        
+        $jsonArray = json_decode($request->getContent(),true);
+        
+        if(!isset($jsonArray['oldPassword']) || !isset($jsonArray['newPassword']) || !isset($jsonArray['newPasswordVerification']) ||
+        $jsonArray['newPassword'] !== $jsonArray['newPasswordVerification']) {
+            return $this->json(['status' => 400, 'message' => 'invalid request'],400);
+        }
+
+
+
+        $newEncodedPassword = $this->passwordHasher->hashPassword($currentUser, $jsonArray['newPassword']);
+        
+        $currentUser->setPassword($newEncodedPassword);
+
+        $this->em->flush();
+                
+        
+        return new JsonResponse(['status' => 200, 'message' => 'password updated'],200);
+        
+    }
+
     
 }

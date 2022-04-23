@@ -3,6 +3,7 @@ import VueRouter from 'vue-router'
 import Login from '../views/Login.vue'
 import Sending from '../views/SendPoints.vue'
 import ScoreBoard from '@/views/ScoreBoard'
+import ChangePassword from '@/views/ChangePassword.vue'
 import Admin from '@/views/Admin/Admin.vue'
 import AdminUsers from '@/views/Admin/Users/Users.vue'
 import AdminCycles from '@/views/Admin/Cycles/Cycles.vue'
@@ -14,6 +15,11 @@ const routes = [
     path: '/',
     name: 'Login',
     component: Login
+  },
+  {
+    path: '/changePassword',
+    name: 'changePassword',
+    component: ChangePassword
   },
   {
     path: '/score',
