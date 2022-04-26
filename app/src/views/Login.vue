@@ -48,6 +48,7 @@ export default {
 		try {
 			let resp = await this.$store.dispatch('logInUser', this.login)
 			this.$bvToast.toast("Login erfolgreich", {title: "Login erfolgreich",  variant: "success", solid: true, "auto-hide-delay": 1000})
+			await this.$store.dispatch("loadUserData")
 			this.$router.push('/score')
 		} catch {
 			this.$bvToast.toast("Ungültige Zugangsdaten", {title: "Login fehlgeschlagen", variant: "danger", solid: true, "auto-hide-delay": 1000})

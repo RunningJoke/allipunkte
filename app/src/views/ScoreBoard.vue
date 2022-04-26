@@ -31,6 +31,9 @@
 						</div>
 				</div>				
 			</b-list-group-item>
+			<b-list-group-item v-if="transactions.length == 0">
+				Noch keine Transaktionen vorhanden
+			</b-list-group-item>
 		</b-list-group>
 	</div>
 </template>

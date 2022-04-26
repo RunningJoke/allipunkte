@@ -1,13 +1,34 @@
 <template>
   <div id="app">
-    <b-nav>
-      <b-link to="/send">Senden</b-link>
-      <b-link to="/score">Punkte</b-link>
-      <b-link to="/changePassword">Passwort ändern</b-link>
-      <b-link @click="logout">Logout</b-link>
-      <b-link to="/admin" v-if="$store.getters.isLoggedInUserAdmin">Admin</b-link>
-    </b-nav>
-    <router-view/>
+    <div class="d-flex flex-column justify-content-between vh-100">
+      <header>
+          <b-navbar toggleable="lg" type="dark" variant="primary">
+          <b-navbar-brand href="#"><img src="./assets/skyline.svg" height="30px"/></b-navbar-brand>
+
+          <b-navbar-toggle target="nav-collapse"></b-navbar-toggle>
+
+          <b-collapse id="nav-collapse" is-nav>      
+              <b-navbar-nav v-if="$store.getters.isLoggedIn">  
+                <b-nav-item variant="dark" to="/send">Senden</b-nav-item>
+                <b-nav-item variant="dark" to="/score">Punkte</b-nav-item>
+                <b-nav-item variant="dark" to="/changePassword">Passwort ändern</b-nav-item>
+                <b-nav-item variant="dark" to="/admin" v-if="$store.getters.isLoggedInUserAdmin">Admin</b-nav-item>
+                <b-nav-item variant="dark" @click="logout">Logout</b-nav-item>
+              </b-navbar-nav>
+              <b-navbar-nav v-else>  
+                <b-nav-item variant="dark" to="/">Einloggen</b-nav-item>
+              </b-navbar-nav>
+          </b-collapse>
+        </b-navbar>
+      </header>
+      <main class="overflow-auto h-100 py-1">
+        <router-view/>
+      </main>
+      <footer class="app--footer bg-primary d-flex justify-content-center align-items-center">
+        <h4 v-if="$store.getters.isLoggedIn" class="text-white p-1 mb-0">Deine Punkte: {{ $store.getters.getUserScore || 0 }} / {{ $store.getters.getTargetScore || 0 }}</h4>
+        <h4 v-else class="text-white p-1 mb-0">&nbsp;</h4>
+      </footer>
+    </div>
   </div>
 </template>
 <script>
@@ -21,25 +42,14 @@ export default {
 }
 </script>
 <style lang="scss">
-@import "~@/assets/scss/vendors/bootstrap-vue/index";
+@import "./style/_custom.scss";
+
+
 #app {
   font-family: Avenir, Helvetica, Arial, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  text-align: center;
-  color: #2c3e50;
 }
 
-#nav {
-  padding: 30px;
 
-  a {
-    font-weight: bold;
-    color: #2c3e50;
-
-    &.router-link-exact-active {
-      color: #42b983;
-    }
-  }
-}
 </style>
