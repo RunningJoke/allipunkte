@@ -76,7 +76,7 @@ export default {
 			transactionsForLoop.forEach(transaction => {
 				transaction['@variant'] = vm.transactionVariant(transaction)
 				transaction['@date'] = vm.formatDateTime(transaction)
-				transaction['@icon'] = transaction['@variant'] == "success" ? '+' : '-'
+				transaction['@icon'] = transaction['@variant'] == "success" ? '+' : (transaction['@variant'] == "warning" ? '*' : '-')
 				transaction['@targetUser'] = vm.transactionSenderOrReceiver(transaction)
 			})
 			return transactionsForLoop
