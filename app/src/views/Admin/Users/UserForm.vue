@@ -1,7 +1,7 @@
 <template>
   <b-container fluid>
-            <b-row>
-                <b-col cols="4">
+            <b-row align-h="start">
+                <b-col cols="12" md="4">
                     <b-form-group
                         label="Vorname"
                         label-for="firstname"
@@ -16,7 +16,7 @@
                         ></b-form-input>
                     </b-form-group>
                 </b-col>
-                <b-col cols="4">
+                <b-col  cols="12" md="4">
                     <b-form-group
                         label="Nachname"
                         label-for="lastname"
@@ -31,7 +31,7 @@
                         ></b-form-input>
                     </b-form-group>
                 </b-col>
-                <b-col cols="4">
+                <b-col  cols="12" md="4">
                     <b-form-group
                         label="Benutzername"
                         label-for="username"
@@ -47,8 +47,8 @@
                     </b-form-group>
                 </b-col>
             </b-row>
-            <b-row>
-                <b-col cols="8">
+            <b-row align-h="start">
+                <b-col  cols="12" md="8">
                     <b-form-group
                         label="E-Mail"
                         label-for="mail"
@@ -63,7 +63,7 @@
                         ></b-form-input>
                     </b-form-group>
                 </b-col>
-                <b-col cols="4">
+                <b-col  cols="12" md="4">
                     <b-form-group
                         label="Lizenznummer"
                         label-for="license"
@@ -80,8 +80,8 @@
                 </b-col>
             </b-row>
 
-            <b-row>
-                <b-col cols="3">
+            <b-row align-h="start">
+                <b-col  cols="12" md="3">
                     <b-form-group
                         label="zu erreichende Punkte"
                         label-for="targetAmount"
@@ -96,14 +96,14 @@
                         ></b-form-input>
                     </b-form-group>
                 </b-col>
-                <b-col cols="5">
+                <b-col  cols="12" md="5">
                     <b-form-checkbox
                         v-model="userData.isCreator"
                         :disabled="disabled">
                         kann Punkte generieren
                     </b-form-checkbox>
                 </b-col>
-                <b-col cols="4">
+                <b-col  cols="12" md="4">
                     <b-form-checkbox
                         v-model="userData.isAdmin"
                         :disabled="disabled">

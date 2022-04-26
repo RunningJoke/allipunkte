@@ -31,6 +31,9 @@
 						</div>
 				</div>				
 			</b-list-group-item>
+			<b-list-group-item v-if="transactions.length == 0">
+				Noch keine Transaktionen vorhanden
+			</b-list-group-item>
 		</b-list-group>
 	</div>
 </template>
@@ -73,11 +76,14 @@ export default {
 			transactionsForLoop.forEach(transaction => {
 				transaction['@variant'] = vm.transactionVariant(transaction)
 				transaction['@date'] = vm.formatDateTime(transaction)
-				transaction['@icon'] = transaction['@variant'] == "success" ? '+' : '-'
+				transaction['@icon'] = transaction['@variant'] == "success" ? '+' : (transaction['@variant'] == "warning" ? '*' : '-')
 				transaction['@targetUser'] = vm.transactionSenderOrReceiver(transaction)
 			})
 			return transactionsForLoop
 		}
+	},
+	mounted() {
+		this.$store.dispatch('getTransactions')
 	},
 	methods: {
 		formatDateTime: function(item) { 

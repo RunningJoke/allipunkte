@@ -3,12 +3,11 @@
     class="transaction--block py-2 rounded" 
     :class="{'createPoints': localData.createPoints}"
     >
-        <b-row>
-            <b-col
-                v-if="canCreate"  
-                class="my-1 d-flex justify-content-start"
-            >
+        <b-row>					
+            <b-col 
+                class="my-1 px-1 d-flex justify-content-between">
                 <b-form-checkbox 
+                    v-if="canCreate"
                     v-model="localData.createPoints" 
                     :value="true" 
                     :unchecked-value="false" 
@@ -17,14 +16,10 @@
                 >
                     Punkte neu erzeugen
                 </b-form-checkbox>
-            </b-col>
-        </b-row>
-        <b-row>					
-            <b-col 
-                class="my-1 d-flex justify-content-end">
                 <b-button 
                     type="button" 
                     variant="danger"  
+                    class="ml-auto"
                     @click="$emit('delete')">-</b-button>
             </b-col>
         </b-row>
