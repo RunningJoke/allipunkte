@@ -82,6 +82,9 @@ export default {
 			return transactionsForLoop
 		}
 	},
+	mounted() {
+		this.$store.dispatch('getTransactions')
+	},
 	methods: {
 		formatDateTime: function(item) { 
 			return moment(item.timestamp).format('DD.MM.YYYY') 
