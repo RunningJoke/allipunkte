@@ -1,7 +1,7 @@
 <template>
   <b-container fluid>
             <b-row>
-                <b-col cols="6">
+                <b-col  cols="12" md="6">
                     <b-form-group
                         label="Titel"
                         label-for="name"
@@ -16,7 +16,7 @@
                         ></b-form-input>
                     </b-form-group>
                 </b-col>
-                <b-col cols="3">
+                <b-col  cols="12" md="3">
                     <b-form-group
                         label="Startdatum"
                         label-for="fromDate"
@@ -30,7 +30,7 @@
                         ></b-form-input>
                     </b-form-group>
                 </b-col>
-                <b-col cols="3">
+                <b-col  cols="12" md="3">
                     <b-form-group
                         label="Enddatum"
                         label-for="toDate"
@@ -46,7 +46,7 @@
                 </b-col>
             </b-row>
             <b-row>
-                <b-col cols="6">
+                <b-col  cols="12" md="6">
                     <b-form-group
                         label="Beschreibung"
                         label-for="description"
@@ -60,7 +60,7 @@
                         ></b-form-textarea>
                     </b-form-group>
                 </b-col>
-                <b-col cols="3">
+                <b-col  cols="12" md="3">
                     <b-form-group
                         label="zu erreichende Punkte"
                         label-for="targetAmount"
@@ -74,7 +74,7 @@
                         ></b-form-input>
                     </b-form-group>
                 </b-col>
-                <b-col cols="3">
+                <b-col  cols="12" md="3">
                     <b-form-group
                         label="Kosten je Punkt [cents]"
                         label-for="costPerPoint"
