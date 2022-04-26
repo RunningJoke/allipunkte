@@ -9,11 +9,11 @@
 
           <b-collapse id="nav-collapse" is-nav>      
               <b-navbar-nav v-if="$store.getters.isLoggedIn">  
-                <b-nav-item variant="dark" to="/send">Senden</b-nav-item>
-                <b-nav-item variant="dark" to="/score">Punkte</b-nav-item>
+                <b-nav-item variant="dark" to="/score">Transaktionen</b-nav-item>
+                <b-nav-item variant="dark" to="/send">Punkte senden</b-nav-item>
                 <b-nav-item variant="dark" to="/changePassword">Passwort ändern</b-nav-item>
                 <b-nav-item variant="dark" to="/admin" v-if="$store.getters.isLoggedInUserAdmin">Admin</b-nav-item>
-                <b-nav-item variant="dark" @click="logout">Logout</b-nav-item>
+                <b-nav-item variant="dark" @click="logout">Ausloggen</b-nav-item>
               </b-navbar-nav>
               <b-navbar-nav v-else>  
                 <b-nav-item variant="dark" to="/">Einloggen</b-nav-item>
