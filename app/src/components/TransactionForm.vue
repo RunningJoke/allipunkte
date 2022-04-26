@@ -5,8 +5,9 @@
     >
         <b-row>					
             <b-col 
-                class="my-1 d-flex justify-content-between">
+                class="my-1 px-1 d-flex justify-content-between">
                 <b-form-checkbox 
+                    v-if="canCreate"
                     v-model="localData.createPoints" 
                     :value="true" 
                     :unchecked-value="false" 
@@ -18,6 +19,7 @@
                 <b-button 
                     type="button" 
                     variant="danger"  
+                    class="ml-auto"
                     @click="$emit('delete')">-</b-button>
             </b-col>
         </b-row>
