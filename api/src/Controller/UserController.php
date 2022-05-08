@@ -2,6 +2,8 @@
 
 namespace App\Controller;
 
+use App\Entity\Score;
+use App\Repository\CycleRepository;
 use App\Repository\UserRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\HttpFoundation\Request;
@@ -16,17 +18,20 @@ class UserController extends AbstractController
 {
     private UserFactoryInterface $userFactory;
     private UserRepository $userRepository;
+    private CycleRepository $cycleRepository;
     private UserPasswordHasherInterface $passwordHasher;
     private EntityManagerInterface $em;
     
     public function __construct(
         UserFactoryInterface $userFactory,
         UserRepository $userRepository,
+        CycleRepository $cycleRepository,
         UserPasswordHasherInterface $passwordHasher,
         EntityManagerInterface $em) {
 
         $this->userFactory = $userFactory;
         $this->userRepository = $userRepository;
+        $this->cycleRepository = $cycleRepository;
         $this->passwordHasher = $passwordHasher;
         $this->em = $em;
     }
@@ -82,6 +87,48 @@ class UserController extends AbstractController
                 
         
         return new JsonResponse($jsonArray,201);
+        
+    }
+
+
+    
+    /**
+     * 
+     * 
+     * 
+     * @Route("api/users/{id}/setTargetPoints", name="user_update_target_points", methods={"POST"})
+     */
+    public function setTargetPoints(int $id, Request $request)
+    {
+        $this->denyAccessUnlessGranted("ROLE_ADMIN");
+        
+        $targetUser = $this->userRepository->findOneById($id);
+        if($targetUser === null) {
+            return $this->json(['status' => 404, 'message' => 'User not found'],404);
+        }
+
+        $jsonArray = json_decode($request->getContent(),true);
+
+        if($jsonArray === null ||!isset($jsonArray['newTargetScore'])) {
+            return $this->json(['status' => 400, 'message' => 'Invalid request'],400);
+        }
+
+        //fetch the score for the active cycle
+        /**
+         * @var Score
+         */
+        $currentScore = $targetUser->getScoreForCycle($this->cycleRepository->findCurrentCycle());
+
+        if($currentScore === null) {
+            return $this->json(['status' => 404, 'message' => 'No active cycle score found'],404);
+        }
+
+        //set the score target to the new value
+        $currentScore->setTargetAmount((int)$jsonArray['newTargetScore']);
+
+        $this->em->flush();
+        
+        return new JsonResponse(['targetScore' =>  $currentScore->getTargetAmount()],200);
         
     }
 
