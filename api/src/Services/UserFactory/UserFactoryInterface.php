@@ -14,7 +14,8 @@ interface UserFactoryInterface {
         string $license,
         int $targetAmount,
         bool $isAdmin = false,
-        bool $isCreator = false
+        bool $isCreator = false,
+        string $password = ""
     ) : User;
 
 
