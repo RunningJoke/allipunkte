@@ -11,9 +11,17 @@
             :items="userItems" 
             :fields="fields">
             <template #cell(actions)="row">
-                <b-button size="sm" @click="detailUser = row.item" v-b-modal.displayUser class="mr-1">
-                Details
-                </b-button>
+                <div class="d-flex flex-nowrap">
+                    <b-button size="sm" @click="detailUser = row.item" v-b-modal.displayUser class="mr-1">
+                    Details
+                    </b-button>
+                    <b-input-group prepend="Neuer Zielwert" size="sm">
+                        <b-form-input type="number" v-model="newTarget" style="max-width: 100px;"></b-form-input>
+                            <b-input-group-append>
+                                <b-button variant="outline-success" @click="updateTargetScore(row.item)"><b-icon-arrow-clockwise /></b-button>
+                            </b-input-group-append>
+                    </b-input-group>
+                </div>
             </template>
         </b-table>
         <b-modal 
@@ -53,6 +61,15 @@ export default {
         }
     },
     methods: {
+        updateTargetScore: async function(targetUser) {
+             try {
+                await this.$request.sendJsonRequest(this.$store.getters.baseUrl+'api/users/'+targetUser.id+'/setTargetPoints' , 'POST', {"newTargetScore" : this.newTarget})
+
+                this.$bvToast.toast('Zielwert für '+targetUser.firstname+' '+targetUser.lastname+' aktualisiert', {variant: 'success'})
+            } catch {
+                this.$bvToast.toast('Zielwert konnte nicht aktualisiert werden', {variant: 'danger'})
+            }
+        },
         sendUserData: async function() {
            try {
             await this.$request.sendJsonRequest(this.$store.getters.baseUrl+'api/users' , 'POST', this.newUser)
@@ -77,6 +94,7 @@ export default {
     },
     data() {
       return {
+        newTarget: 0,
         newUser: {},
         detailUser: {},
 
@@ -95,6 +113,11 @@ export default {
             key: 'mail',
             sortable: true,
             label: 'E-Mail'
+          },
+          {
+            key: 'username',
+            sortable: true,
+            label: 'Benutzername'
           },
           { key: 'actions', label: 'Aktionen' }
         ]
