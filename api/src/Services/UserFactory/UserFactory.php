@@ -31,7 +31,8 @@ class UserFactory implements UserFactoryInterface {
         string $license,
         int $targetAmount,
         bool $isAdmin = false,
-        bool $isCreator = false
+        bool $isCreator = false,
+        string $password = ""
     ) : User
     {        
         
@@ -43,9 +44,13 @@ class UserFactory implements UserFactoryInterface {
         $newUser->setUsername($username);
         $newUser->setMail($mail);
         $newUser->setLicense($license);
+
+
+        if($password === '') {
+            $password = $license;
+        }
         
-        
-        $encodedPassword = $this->pwEncoder->hashPassword($newUser, $license);
+        $encodedPassword = $this->pwEncoder->hashPassword($newUser, $password);
         
         $newUser->setPassword($encodedPassword);
         
