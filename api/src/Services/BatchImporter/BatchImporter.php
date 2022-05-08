@@ -92,13 +92,17 @@ class BatchImporter implements BatchImporterInterface {
     {
         $namedFields = array_combine($headers, $rowData);
 
-        $firstname = trim($namedFields['Vorname'] ?? '');
-        $lastname = trim($namedFields['Nachname'] ?? '');
+        $firstname = trim($this->removeAnnotations($namedFields['Vorname'] ?? ''));
+        $lastname = trim($this->removeAnnotations($namedFields['Nachname'] ?? ''));
         $mail = trim($namedFields['Email'] ?? '');
         $password = trim($namedFields['Passwort'] ?? '');
         $license = trim($namedFields['Lizenz'] ?? '');
 
-        $lookupKey = strtolower($firstname).'_'.strtolower($lastname);
+        //these are stripped from umlauts, accents, spaces etc... Just letters
+        $cleanFirstName = strtolower($this->cleanString($firstname));
+        $cleanLastName = strtolower($this->cleanString($lastname));
+
+        $lookupKey = strtolower($cleanFirstName).'_'.strtolower($cleanLastName);
 
         //check if the user already exists
         if(isset($this->userLookupTable[$mail]) || isset($this->userLookupTable[$lookupKey])) {
@@ -108,7 +112,9 @@ class BatchImporter implements BatchImporterInterface {
 
         //no collision: generate password
         $generatedPassword = $this->generatePassword($mail , $password , $license);
-        $generatedUsername = $this->generateUsername($firstname , $lastname);
+
+        //use the clean variants for user generation so people will stay sane
+        $generatedUsername = $this->generateUsername($cleanFirstName , $cleanLastName);
 
         if($generatedUsername === null) {
             //creation failed because username could not be generated
@@ -127,6 +133,13 @@ class BatchImporter implements BatchImporterInterface {
             false,
             $generatedPassword
         );
+
+        if($newUser !== null) {
+            //add newly created user to the lookup table to prevent collision with other newly created users
+            $this->userLookupTable[$mail] = $newUser;
+            $this->userLookupTable[$lookupKey] = $newUser;
+            $this->userLookupTable[$newUser->getUsername()] = $newUser;
+        }
 
         return $newUser;
 
@@ -152,8 +165,8 @@ class BatchImporter implements BatchImporterInterface {
 
     private function generateUsername($firstname , $lastname) : ?string
     {
-
-        for($i=0;$i<strlen($firstname);$i++) {
+        
+        for($i=1;$i<strlen($firstname);$i++) {
             $firstnameAbbr = substr($firstname,0,$i);
 
             $username = $firstnameAbbr.$lastname;
@@ -165,6 +178,36 @@ class BatchImporter implements BatchImporterInterface {
 
         return null;
 
+    }
+
+    private function removeAnnotations($text) {
+        return preg_replace('/\(.*\)/', '', $text);
+    }
+
+    private function cleanString($text) {
+        $utf8 = array(
+            '/[áàâãªä]/u'   =>   'a',
+            '/[ÁÀÂÃÄ]/u'    =>   'A',
+            '/[ÍÌÎÏ]/u'     =>   'I',
+            '/[íìîï]/u'     =>   'i',
+            '/[éèêë]/u'     =>   'e',
+            '/[ÉÈÊË]/u'     =>   'E',
+            '/[óòôõºö]/u'   =>   'o',
+            '/[ÓÒÔÕÖ]/u'    =>   'O',
+            '/[úùûü]/u'     =>   'u',
+            '/[ÚÙÛÜ]/u'     =>   'U',
+            '/ç/'           =>   'c',
+            '/Ç/'           =>   'C',
+            '/ñ/'           =>   'n',
+            '/Ñ/'           =>   'N',
+            '/ß/'           =>   'ss',
+            '/[\'\`\´\-]/'      =>   '', //just remove 
+            '/–/'           =>   '-', // UTF-8 hyphen to "normal" hyphen
+            '/[’‘‹›‚]/u'    =>   '', // Literally a single quote
+            '/[“”«»„]/u'    =>   '', // Double quote
+            '/ /'           =>   '' // nonbreaking space (equiv. to 0x160)
+        );
+        return preg_replace(array_keys($utf8), array_values($utf8), $text);
     }
 
 
