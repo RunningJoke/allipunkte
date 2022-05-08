@@ -14,7 +14,7 @@ use Symfony\Component\Serializer\Annotation\Groups;
 /**
  * @ApiResource(
  * normalizationContext={"groups"={"USER_READ"}},
- * attributes={"security"="is_granted('ROLE_USER')"},
+ * attributes={"security"="is_granted('ROLE_USER')", "pagination_enabled" = false},
  *     collectionOperations={
  *         "get"
  *     },
