@@ -8,6 +8,9 @@ import ChangePassword from '@/views/ChangePassword.vue'
 import Admin from '@/views/Admin/Admin.vue'
 import AdminUsers from '@/views/Admin/Users/Users.vue'
 import AdminCycles from '@/views/Admin/Cycles/Cycles.vue'
+
+import Petitions from '@/views/Petitions/Petitions.vue'
+
 import { BIconExclamationSquareFill } from 'bootstrap-vue'
 
 Vue.use(VueRouter)
@@ -27,6 +30,11 @@ const routes = [
     path: '/score',
     name: 'Score',
     component: ScoreBoard
+  },
+  {
+    path: '/petitions',
+    name: 'Petitions',
+    component: Petitions
   },
   {
     path: '/send',
