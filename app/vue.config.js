@@ -2,12 +2,17 @@ const bootstrapSassAbstractsImports = require('vue-cli-plugin-bootstrap-vue/sass
 module.exports = {
 	css: {
 		loaderOptions: {
-			sass: {
-				additionalData: bootstrapSassAbstractsImports.join('\n')
-			},
-			scss: {
-				additionalData: [...bootstrapSassAbstractsImports, ''].join(';\n')
-			}
 		}
+	},
+	devServer: {
+		public : "http://localhost:8080"
+	},
+	pwa: {
+		workboxPluginMode: "GenerateSW",
+		name: "Alli-Punkte",
+		themeColor: "#FFFFFF",
+		appleMobileWebAppCapable: 'yes',
+		appleMobileWebAppStatusBarStyle: 'black',
+
 	}
 }
