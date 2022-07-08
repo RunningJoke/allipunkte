@@ -79,6 +79,36 @@
                     </b-form-group>
                 </b-col>
             </b-row>
+            <b-row align-h="start">
+                <b-col  cols="12" md="6">
+                    <b-form-group
+                        label="Passwort"
+                        label-for="password"
+                    >
+                        <b-form-input
+                        id="password"
+                        v-model="userData.password"
+                        type="password"
+                        :disabled="disabled"
+                        required
+                        ></b-form-input>
+                    </b-form-group>
+                </b-col>
+                <b-col  cols="12" md="6">
+                    <b-form-group
+                        label="Passwort bestätigen"
+                        label-for="password_confirm"
+                    >
+                        <b-form-input
+                        id="password_confirm"
+                        v-model="userData.password_confirm"
+                        type="password"
+                        :disabled="disabled"
+                        required
+                        ></b-form-input>
+                    </b-form-group>
+                </b-col>
+            </b-row>
 
             <b-row align-h="start">
                 <b-col  cols="12" md="3">
@@ -91,7 +121,7 @@
                         v-model.number="userData.targetAmount"
                         type="number"
                         :disabled="disabled"
-                        placeholder="10"   
+                        placeholder=""   
                         required                     
                         ></b-form-input>
                     </b-form-group>

@@ -64,7 +64,8 @@ class UserController extends AbstractController
             'license',
             'targetAmount',
             'isAdmin',
-            'isCreator'])) == 0;
+            'isCreator',
+            'password', 'password_confirm'])) == 0;
         
         if(!$valid)
         {
@@ -82,7 +83,8 @@ class UserController extends AbstractController
             $jsonArray['license'],
             $jsonArray['targetAmount'],
             $jsonArray['isAdmin'] ?? false,
-            $jsonArray['isCreator'] ?? false
+            $jsonArray['isCreator'] ?? false,
+            $jsonArray['password'] ?? ""
         );
                 
         
