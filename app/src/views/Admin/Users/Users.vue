@@ -72,6 +72,13 @@ export default {
         },
         sendUserData: async function() {
            try {
+            //validate the initial password request and check against the password_confirm field
+            if(this.newUser.password == "" || this.newUser.password !== this.newUser.password_confirm) {
+                this.$bvToast.toast('Passwort nicht angegeben/ stimmt nicht überein', {variant: 'danger'})
+                //dont continue saving
+                return
+            }
+
             await this.$request.sendJsonRequest(this.$store.getters.baseUrl+'api/users' , 'POST', this.newUser)
 
             this.$bvToast.toast('Benutzer erfolgreich erstellt', {variant: 'success'})
@@ -88,7 +95,9 @@ export default {
                 license: '',
                 targetAmount: 0,
                 isAdmin: false,
-                isCreator: false
+                isCreator: false,
+                password: "",
+                password_confirm: ""
             }
         }
     },
