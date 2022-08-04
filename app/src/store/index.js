@@ -10,7 +10,7 @@ import moment from 'moment'
 Vue.use(Vuex)
 const store = new Vuex.Store({
   state: {
-	  currentSeason: {},
+	  currentCycle: {},
 	  loggedInUser: {},
 	  userList: [],
 	  cycleList: [],
@@ -21,7 +21,7 @@ const store = new Vuex.Store({
   mutations: {
 	  setTransactions(state, value) { state.transactions = value },
 	  setUserList(state, value) { state.userList = value },
-	  setCurrentSeason(state, value) { state.currentSeason = value },
+	  setCurrentCycle(state, value) { state.currentCycle = value },
 	  setLoggedInUser(state, value) { state.loggedInUser = value },
 	  setUserScore(state, value) { state.userScore = value },
 	  setTargetScore(state, value) { state.targetScore = value },
@@ -51,7 +51,7 @@ const store = new Vuex.Store({
 			let responseBody = await requestManager.sendJsonRequest(config.baseUrl+"updateUserData")
 			//add field validation
 			context.commit("setLoggedInUser", responseBody)
-			context.commit("setCurrentSeason", responseBody.cycle)
+			context.commit("setCurrentCycle", responseBody.cycle)
 			context.commit("setUserScore", responseBody.userScore)
 			context.commit("setTargetScore", responseBody.targetScore)
 			
@@ -92,7 +92,7 @@ const store = new Vuex.Store({
 		} finally {	
 			//always clear the store even if the logout fails	
 			context.commit("setLoggedInUser", {})
-			context.commit("setCurrentSeason", {})
+			context.commit("setCurrentCycle", {})
 			context.commit("setUserScore", 0)
 			router.push('/')
 		}
@@ -141,6 +141,7 @@ const store = new Vuex.Store({
 	  getSentTransactions: (state) => {
 		  return state.transactions && state.transactions.filter((item) => (item.origin === "/users/"+state.loggedInUser.id))
 	  },
+	  getCurrentCycle: (state) => state.currentCycle,
 	  getReceivedTransactions: (state) => {
 		  return state.transactions && state.transactions.filter((item) => (item.target === "/users/"+state.loggedInUser.id))
 	  },

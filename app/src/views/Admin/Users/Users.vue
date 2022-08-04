@@ -57,7 +57,15 @@ export default {
     },
     computed: {
         userItems: function(vm) {
-            return vm.$store.getters.getUsers
+            return vm.$store.getters.getUsers.map(user => {
+                let currentScore = user?.scores?.find(score => score?.cycle?.id == this.$store.getters.getCurrentCycle?.id) ?? null
+                let targetAmount = currentScore.targetAmount ?? -1
+                let enhancedUser = {...user}
+                if(targetAmount > 0) {
+                 Object.assign(enhancedUser, {'_rowVariant' : 'success'})
+                }
+                return enhancedUser
+            })
         }
     },
     methods: {
@@ -66,6 +74,8 @@ export default {
                 await this.$request.sendJsonRequest(this.$store.getters.baseUrl+'api/users/'+targetUser.id+'/setTargetPoints' , 'POST', {"newTargetScore" : this.newTarget})
 
                 this.$bvToast.toast('Zielwert für '+targetUser.firstname+' '+targetUser.lastname+' aktualisiert', {variant: 'success'})
+                let currentScore = targetUser?.scores?.find(score => score?.cycle?.id == this.$store.getters.getCurrentCycle?.id) ?? null
+                currentScore.targetAmount = this.newTarget
             } catch {
                 this.$bvToast.toast('Zielwert konnte nicht aktualisiert werden', {variant: 'danger'})
             }

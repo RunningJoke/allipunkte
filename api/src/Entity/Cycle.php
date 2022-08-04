@@ -90,8 +90,9 @@ class Cycle
     }
 
     /**
-     * @Groups({"CYCLE_READ"})
+     * @Groups({"CYCLE_READ", "USER_READ_ADMIN"})
      * @return int|null
+     *
      */
     public function getId(): ?int
     {
