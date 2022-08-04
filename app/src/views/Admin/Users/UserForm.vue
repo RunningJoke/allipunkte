@@ -163,6 +163,8 @@ export default {
             immediate: true,
             handler: function() {
                 this.userData = this.value
+                let scoreEntry = this.userData?.scores?.find(score => score?.cycle?.id == this.$store.getters.getCurrentCycle?.id) ?? null
+                this.userData.targetAmount = scoreEntry.targetAmount ?? -1
             }
         },
         'userData' : {
@@ -182,7 +184,8 @@ export default {
                 license: '',
                 targetAmount: 0,
                 isAdmin: false,
-                isCreator: false
+                isCreator: false,
+                scores: []
             }
         }
     }
