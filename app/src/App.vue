@@ -1,7 +1,7 @@
 <template>
   <div id="app">
     <div class="d-flex flex-column justify-content-between vh-100">
-      <header>
+      <header class="mb-1">
           <b-navbar toggleable="lg" type="dark" variant="primary">
           <b-navbar-brand href="#"><img src="./assets/skyline.svg" height="30px"/></b-navbar-brand>
 
@@ -21,7 +21,7 @@
           </b-collapse>
         </b-navbar>
       </header>
-      <main class="overflow-auto h-100 py-1">
+      <main class="overflow-auto h-100">
         <router-view/>
       </main>
       <footer class="app--footer bg-primary d-flex justify-content-center align-items-center">
