@@ -66,6 +66,7 @@ class SecurityController extends AbstractController
 
         if($currentSeason !== null) {
             $currentSeasonArray = [
+                'id' => $currentSeason->getId(),
                 'name' => $currentSeason->getName(),
                 'description' => $currentSeason->getDescription(),
                 'from' => $currentSeason->getFromDate()->format(\DateTimeInterface::ISO8601),
