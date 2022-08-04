@@ -1,6 +1,6 @@
 <template>
-    <div class="text-left m-1"><h4>Benutzerlisten</h4>
-    <div class="d-flex flex-row mb-2 align-items-center">
+    <div class="text-left p-1 position-relative">
+    <div class="d-flex flex-row mb-2 align-items-center bg-white position-sticky py-2" style="top: 0; z-index:5;">
         
         <b-button variant="success" v-b-modal.createNewUser class="mr-2 text-nowrap" size="sm">
             + <b-icon-person />
