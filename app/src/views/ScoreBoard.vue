@@ -1,5 +1,43 @@
 <template>
 	<div>
+		<div class="d-flex flex-row mb-2 align-items-center bg-white position-sticky py-2" style="top: 0; z-index:5;">
+        
+         <b-input-group class="flex-nowrap ml-2" >
+            <b-input-group-prepend is-text>
+                <b-icon-search />
+            </b-input-group-prepend>
+            <b-form-input placeholder="Suche..." type="search" v-model="filterString"></b-form-input>       
+        </b-input-group>
+
+		<div class="d-flex ml-2 mr-2">
+			<b-form-checkbox
+				button
+				v-model="showReceived"
+				name="checkbox-1"
+				button-variant="outline-success"
+			>
+				+
+			</b-form-checkbox>
+			<b-form-checkbox
+				button
+				class="mx-1"
+				v-model="showSent"
+				name="checkbox-1"
+				button-variant="outline-danger"
+			>
+				-
+			</b-form-checkbox>
+			<b-form-checkbox
+				v-if="canCreate"
+				button
+				v-model="showCreated"
+				name="checkbox-1"
+				button-variant="outline-warning"
+			>
+				*
+			</b-form-checkbox>
+		</div>
+    </div>
 		<b-list-group>
 			<b-list-group-item 
 				v-for="(item, idx) in transactions" 
@@ -69,8 +107,16 @@ const moment = require('moment')
 
 export default {
 	name: "ScoreBoard",
-	
+	data() {
+		return {
+			filterString: "",
+			showReceived: true,
+			showSent: true,
+			showCreated: true
+		}
+	},
 	computed: {
+		canCreate: (vm) => vm.$store.getters.isLoggedInUserAdmin || vm.$store.getters.isLoggedInUserCreator,
 		transactions: function(vm) {
 			let transactionsForLoop = JSON.parse(JSON.stringify(vm.$store.getters.getTransactions)).slice().reverse()
 			transactionsForLoop.forEach(transaction => {
@@ -79,7 +125,7 @@ export default {
 				transaction['@icon'] = transaction['@variant'] == "success" ? '+' : (transaction['@variant'] == "warning" ? '*' : '-')
 				transaction['@targetUser'] = vm.transactionSenderOrReceiver(transaction)
 			})
-			return transactionsForLoop
+			return transactionsForLoop.filter(vm.transactionFilterFunction)
 		}
 	},
 	mounted() {
@@ -108,6 +154,23 @@ export default {
 			var userElement = showUser && this.loadUser(showUser)
 			if(!userElement) { return null }
 			return userElement
+		},
+		transactionFilterFunction: function(transaction) {
+			
+			let regexFilterString = ""
+			try {
+			regexFilterString = new RegExp(this.filterString,'i')
+			} catch {
+				return true
+			}
+			return ((this.showReceived && transaction['@variant'] == "success") ||
+						(this.showCreated && transaction['@variant'] == "warning") ||
+						(this.showSent && transaction['@variant'] == "danger")) &&
+						(this.filterString == "" || //short circuit empty filter string
+						regexFilterString.test(transaction['@date']) || 
+						regexFilterString.test(transaction['description']) ||
+						regexFilterString.test(transaction['@targetUser']?.firstname) ||
+						regexFilterString.test(transaction['@targetUser']?.lastname) ) 
 		}
 	}
 }
