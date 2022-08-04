@@ -3,7 +3,9 @@
 namespace App\Entity;
 
 use Doctrine\ORM\Mapping as ORM;
+use ApiPlatform\Core\Annotation\ApiProperty;
 use ApiPlatform\Core\Annotation\ApiResource;
+use Symfony\Component\Serializer\Annotation\Groups;
 
 /**
  * @ORM\Entity(repositoryClass="App\Repository\ScoreRepository")
@@ -74,6 +76,9 @@ class Score
         return $this->id;
     }
 
+    /**
+     * @Groups({"USER_READ_ADMIN"})
+     */
     public function getCycle(): ?Cycle
     {
         return $this->cycle;
@@ -110,6 +115,9 @@ class Score
         return $this;
     }
 
+    /**
+     * @Groups({"USER_READ_ADMIN"})
+     */
     public function getTargetAmount(): ?int
     {
         return $this->targetAmount;

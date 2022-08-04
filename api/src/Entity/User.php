@@ -210,6 +210,9 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
 
     /**
      * @return Collection|Score[]
+     * 
+     * @Groups({"USER_READ_ADMIN"})
+     *
      */
     public function getScores(): Collection
     {
