@@ -1,45 +1,97 @@
 <template>
     <div>
-        <b-button size="lg" class="create--button" pill variant="primary" type="button" @click="createNew($event)">+</b-button>
+        
+        <div class="d-flex flex-row mb-2 ml-2 align-items-center bg-white position-sticky py-2" style="top: 0; z-index:5;">
+        
+        <b-button size="sm" variant="success" type="button" @click="createNew($event)"><b-icon-file-plus /></b-button>
+
+         <b-input-group class="flex-nowrap ml-2" size="sm">
+            <b-input-group-prepend is-text>
+                <b-icon-search />
+            </b-input-group-prepend>
+            <b-form-input placeholder="Suche..." type="search" v-model="filterString"></b-form-input>       
+        </b-input-group>
+
+		<div class="d-flex ml-2 mr-2">
+			<b-form-checkbox
+                size="sm"
+				button
+				v-model="showOnlyOwn"
+				name="checkbox-1"
+				button-variant="outline-dark"
+			>
+				<b-icon-person-check-fill />
+			</b-form-checkbox>
+			<b-form-checkbox
+                size="sm"
+				button
+				class="mx-1"
+				v-model="showOld"
+				name="checkbox-1"
+				button-variant="outline-warning"
+			>
+				<b-icon-archive />
+			</b-form-checkbox>
+		</div>
+    </div>
+
+
         <b-list-group>
                     <b-list-group-item 
                         v-for="(item, idx) in activePetitions" 
                         :key="'petition-'+idx"
-                        class="mx-1"
+                        class="mx-1 py-2 px-1"
                         @click="openModal(item)"
                         >
 
-                        <div class="d-flex petition-titlerow flex-column">
-                            <div class="petition-title h5 d-flex flex-nowrap">                                
-                                <div class="text-truncate" :title="item.title">{{ item.title }}</div>                                
-                            </div>
-                            <div class="d-flex petition-title-box flex-grow-1">
-                                
-                                <div class="petition-creator h6 small">
-                                    {{ item['@createUserString'].firstname + ' ' +  item['@createUserString'].lastname }}
+                        <div class="d-flex petition-titlerow flex-column mb-2">
+                            <div class="petition-titled-flex flex-nowrap d-flex">   
+                                <div class="w-75">
+                                    <div class="d-flex flex-row flex-fill">
+                                        <b-badge variant="primary" class="mr-1 mb-1">{{ item.offeredPoints }} Punkte</b-badge>                             
+                                        
+                                        
+                                        
+                                    </div>
+                                    <div class="text-truncate  h5 mb-0" :title="item.title">
+                                        {{ item.title }}                                    
+                                    </div>  
+                                    <div style="font-size: 10pt;">
+                                        {{ item['@createUserString'].firstname + ' ' +  item['@createUserString'].lastname }}
+                                    </div>
                                 </div>
 
-                                <div class="d-flex flex-column petition-date-box align-items-end ml-auto h6 small">
+
+                                <b-badge variant="light" class="d-flex flex-column justify-content-center align-items-end w-25"  style="font-size: 10pt; font-weight: bold;">
+                                    
                                     <div class="petition-date">{{ item['@dueDate'].format('DD.MM.YYYY') }}</div>
-                                    <div class="petition-time">{{ item['@dueDate'].format('HH:mm') }}</div>
-                                </div>
+                                    <div class="mt-2 petition-time">{{ item['@dueDate'].format('HH:mm') }} Uhr</div>                                    
+
+                                </b-badge>   
+
                             </div>
                             
                         </div>
 
-                        <div class="text-truncate">{{ item.description }}</div>
-
-                        <div class="status-bar d-flex align-items-center">
-                            <b-progress :max="item.openPositions" class="flex-grow-1 mr-2">
-                                <b-progress-bar :value="item.filledPositions" variant="primary">
+                        <div class="petition-titled-flex flex-nowrap d-flex">  
+                            <div class="text-truncate w-75" style="font-size: 10pt;">{{ item.description }}</div>
+                            <div class="status-bar d-flex align-items-center w-25 position-relative">
+                                
+                                <b-badge v-if="item.status == 'closed'" :variant="item['@statusVariant']" class="petition-status w-100">{{ item['@statusString'] }}</b-badge>
+                                <template v-else>
+                                <b-progress :max="item.openPositions" class="flex-grow-1" :class="'bg-'+item['@statusVariant']" >
+                                    <b-progress-bar :value="item.filledPositions" :variant="'secondary'" >
+                                        
+                                    </b-progress-bar>
+                                </b-progress>
+                                <div class="position-absolute text-white" style="font-size: 8pt;font-weight: bold;left: 50%;transform: translateX(-50%);">
                                     {{ item.filledPositions }} / {{ item.openPositions }}
-                                </b-progress-bar>
-                            </b-progress>
-                            <div class="status-box">
-                                <b-badge variant="secondary" class="mr-1">{{ item.offeredPoints }} Punkte</b-badge>
-                                <b-badge :variant="item['@statusVariant']">{{ item['@statusString'] }}</b-badge>
+                                </div>
+                                </template>
                             </div>
                         </div>
+
+                        
                     </b-list-group-item>
         </b-list-group>
 
@@ -173,8 +225,18 @@ export default {
     },
     computed: {
         activePetitions: function(vm) {
+            let regexFilterString
+            try {
+                regexFilterString = new RegExp(vm.filterString,'i')
+            } catch {
+                regexFilterString = ""
+            }
+
             return vm.petitions
-                .filter(petition => moment(petition.dueDate).isAfter() || petition.status == "closed")
+                .filter(petition => (vm.showOld  || (moment(petition.dueDate).isAfter() && petition.status == "open")) &&
+                            (!vm.showOnlyOwn || (vm.showOnlyOwn && petition.createUser == vm.$store.getters.getUserIRI)) &&
+                            (regexFilterString == ""  || (regexFilterString.test(petition.description) || regexFilterString.test(petition.title)))
+                        )
                 .sort((a,b) => moment(a.dueDate).valueOf() - moment(b.dueDate).valueOf())
                 .map(petition => {
                     let newPetition = {...petition}
@@ -250,6 +312,9 @@ export default {
     },
     data() {
         return {
+            filterString: "",
+            showOld: false,
+            showOnlyOwn: false,
             petitions: [],
             petitionInModal: {},
             petitionStatusOptions: [
