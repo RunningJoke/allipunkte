@@ -2,6 +2,7 @@
 
 namespace App\Entity;
 
+use App\Entity\Petitioning\Petition;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
@@ -84,11 +85,17 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
      */
     private $receivedTransactions;
 
+    /**
+     * @ORM\OneToMany(targetEntity=Petition::class, mappedBy="createUser")
+     */
+    private $petitions;
+
     public function __construct()
     {
         $this->scores = new ArrayCollection();
         $this->sentTransactions = new ArrayCollection();
         $this->receivedTransactions = new ArrayCollection();
+        $this->petitions = new ArrayCollection();
     }
 
     /**
@@ -327,6 +334,36 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     public function isIsAdmin() : bool
     {
         return in_array('ROLE_ADMIN',$this->getRoles());
+    }
+
+    /**
+     * @return Collection|Petition[]
+     */
+    public function getPetitions(): Collection
+    {
+        return $this->petitions;
+    }
+
+    public function addPetition(Petition $petition): self
+    {
+        if (!$this->petitions->contains($petition)) {
+            $this->petitions[] = $petition;
+            $petition->setCreateUser($this);
+        }
+
+        return $this;
+    }
+
+    public function removePetition(Petition $petition): self
+    {
+        if ($this->petitions->removeElement($petition)) {
+            // set the owning side to null (unless already changed)
+            if ($petition->getCreateUser() === $this) {
+                $petition->setCreateUser(null);
+            }
+        }
+
+        return $this;
     }
     
 }
