@@ -14,11 +14,14 @@
                 <b-nav-item variant="dark" to="/send">Punkte senden</b-nav-item>
                 <b-nav-item variant="dark" to="/changePassword">Passwort ändern</b-nav-item>
                 <b-nav-item variant="dark" to="/admin" v-if="$store.getters.isLoggedInUserAdmin">Admin</b-nav-item>
+                <b-nav-item to="/docs" class="text-white">Antrag und Punkteschlüssel</b-nav-item>
                 <b-nav-item variant="dark" @click="logout">Ausloggen</b-nav-item>
               </b-navbar-nav>
               <b-navbar-nav v-else>  
                 <b-nav-item variant="dark" to="/">Einloggen</b-nav-item>
               </b-navbar-nav>
+
+
           </b-collapse>
         </b-navbar>
       </header>

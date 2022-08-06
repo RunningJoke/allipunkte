@@ -6,6 +6,7 @@ import Sending from '../views/SendPoints.vue'
 import ScoreBoard from '@/views/ScoreBoard'
 import ChangePassword from '@/views/ChangePassword.vue'
 import Admin from '@/views/Admin/Admin.vue'
+import Docs from '@/views/Docs.vue'
 import AdminUsers from '@/views/Admin/Users/Users.vue'
 import AdminCycles from '@/views/Admin/Cycles/Cycles.vue'
 
@@ -43,6 +44,14 @@ const routes = [
     // this generates a separate chunk (about.[hash].js) for this route
     // which is lazy-loaded when the route is visited.
     component: Sending
+  },
+  {
+    path: '/docs',
+    name: 'Docs',
+    // route level code-splitting
+    // this generates a separate chunk (about.[hash].js) for this route
+    // which is lazy-loaded when the route is visited.
+    component: Docs
   },
   {
     path: '/admin',
