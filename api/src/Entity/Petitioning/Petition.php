@@ -16,7 +16,7 @@ use Symfony\Component\Serializer\Annotation\Groups;
     attributes: ['security' => "is_granted('ROLE_USER')", "pagination_enabled" => false],
     itemOperations: [
         "get",
-        "put" => ['security' => "is_granted('ROLE_ADMIN') or (object.createUser == user)"]
+        "put" => ['security_post_denormalize' => "is_granted('PETITION_CAN_UPDATE',previous_object)"]
     ]
  )
  ]
