@@ -20,7 +20,9 @@
         "symfony/dotenv": "6.0.*",
         "symfony/expression-language": "6.0.*",
         "symfony/flex": "^2",
+        "symfony/form": "6.0.*",
         "symfony/framework-bundle": "6.0.*",
+        "symfony/mailer": "6.0.*",
         "symfony/property-access": "6.0.*",
         "symfony/property-info": "6.0.*",
         "symfony/proxy-manager-bridge": "6.0.*",
@@ -29,7 +31,8 @@
         "symfony/serializer": "6.0.*",
         "symfony/twig-bundle": "6.0.*",
         "symfony/validator": "6.0.*",
-        "symfony/yaml": "6.0.*"
+        "symfony/yaml": "6.0.*",
+        "symfonycasts/reset-password-bundle": "*"
     },
     "config": {
         "allow-plugins": {

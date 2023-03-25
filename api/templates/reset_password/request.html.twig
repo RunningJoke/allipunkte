@@ -1,0 +1,21 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Passwort zurücksetzen{% endblock %}
+
+{% block body %}
+    {% for flashError in app.flashes('reset_password_error') %}
+        <div class="alert alert-danger" role="alert">{{ flashError }}</div>
+    {% endfor %}
+    <h1>Passwort zurücksetzen</h1>
+
+    {{ form_start(requestForm) }}
+        {{ form_row(requestForm.mail) }}
+        <div>
+            <small>
+                Bitte gib deine hinterlegte E-Mail an, damit wir dir eine Mail zum Zurücksetzen zukommen lassen können.
+            </small>
+        </div>
+
+        <button class="btn btn-primary">Sende die Mail</button>
+    {{ form_end(requestForm) }}
+{% endblock %}

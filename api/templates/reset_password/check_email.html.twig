@@ -1,0 +1,11 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Passwortmail verschickt{% endblock %}
+
+{% block body %}
+    <p>
+        Sollte ein Account existieren, haben wir dir eine E-Mail geschickt.
+        Der Link ist eine Stunde lang gültig.
+    </p>
+    <p>Solltest du nicht bald eine Mail erhalten, dann prüfe bitte deinen Spam-Ordner oder <a href="{{ path('app_forgot_password_request') }}">versuche es erneut</a>.</p>
+{% endblock %}
