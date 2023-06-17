@@ -4,6 +4,7 @@ import VueRouter from 'vue-router'
 import Login from '../views/Login.vue'
 import Sending from '../views/SendPoints.vue'
 import ScoreBoard from '@/views/ScoreBoard'
+import PastCycles from '@/views/PastCycles'
 import ChangePassword from '@/views/ChangePassword.vue'
 import Admin from '@/views/Admin/Admin.vue'
 import Docs from '@/views/Docs.vue'
@@ -44,6 +45,14 @@ const routes = [
     // this generates a separate chunk (about.[hash].js) for this route
     // which is lazy-loaded when the route is visited.
     component: Sending
+  },
+  {
+    path: '/pastCycles',
+    name: 'PastCycles',
+    // route level code-splitting
+    // this generates a separate chunk (about.[hash].js) for this route
+    // which is lazy-loaded when the route is visited.
+    component: PastCycles
   },
   {
     path: '/docs',

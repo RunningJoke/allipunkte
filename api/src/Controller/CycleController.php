@@ -2,6 +2,7 @@
 
 namespace App\Controller;
 
+use App\Repository\ScoreRepository;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 use App\Services\UserFactory\UserFactoryInterface;
@@ -12,11 +13,14 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 class CycleController extends AbstractController
 {
     private $cycleFactory;
+    private $scoreRepository;
     
     public function __construct(
-        CycleFactoryInterface $cycleFactory) {
+        CycleFactoryInterface $cycleFactory,
+        ScoreRepository $scoreRepository) {
 
         $this->cycleFactory = $cycleFactory;
+        $this->scoreRepository = $scoreRepository;
     }
     
     /**
@@ -63,6 +67,23 @@ class CycleController extends AbstractController
         
         return $this->json($newCycle,201);
         
+    }
+
+    /**
+     * @Route("pastCycles", name="cycle_past", methods={"GET"})
+     */
+    public function getPastCycleStatusForUser(Request $request)
+    {
+        $this->denyAccessUnlessGranted("ROLE_USER");
+
+        /**
+         * @var \App\Entity\User
+         */
+        $currentUser = $this->getUser();
+
+        $allScores = $this->scoreRepository->getPastCycleStates($currentUser);
+        
+        return $this->json($allScores);
     }
     
 }
