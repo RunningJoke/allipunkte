@@ -43,8 +43,7 @@ class TransactionRepository extends ServiceEntityRepository
     {
         return $this->createQueryBuilder('t')
             ->andWhere('t.cycle = :cycleid')
-            ->andWhere('t.origin = :userid')                
-            ->orWhere('t.target = :userid')
+            ->andWhere('t.origin = :userid OR t.target = :userid')
             ->setParameter('userid', $user->getId())
             ->setParameter('cycleid', $cycle->getId())
             ->getQuery()
