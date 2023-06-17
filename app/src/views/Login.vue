@@ -18,7 +18,10 @@
 		>
 		<b-form-input type="password" v-model="login.password" ></b-form-input>
 	</b-form-group>
-	<b-button type="submit"><b-spinner size="sm" v-if="isLoggingIn" class="mr-2" /> Login</b-button>
+	<div class="d-flex justify-content-between">
+		<b-button type="submit"><b-spinner size="sm" v-if="isLoggingIn" class="mr-2" /> Login</b-button>
+		<b-link class="ml-auto p-1" href="https://localhost:8000/reset-password">Passwort vergessen?</b-link>
+	</div>
   </b-form>
   
   

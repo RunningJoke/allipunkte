@@ -98,7 +98,7 @@ export default {
         userItems: function(vm) {
             return vm.$store.getters.getUsers.map(user => {
                 let currentScore = user?.scores?.find(score => score?.cycle?.id == this.$store.getters.getCurrentCycle?.id) ?? null
-                let targetAmount = currentScore.targetAmount ?? -1
+                let targetAmount = currentScore?.targetAmount ?? -1
                 let enhancedUser = {...user, 'targetAmount' : targetAmount}
                 if(targetAmount > 0) {
                  Object.assign(enhancedUser, {'_rowVariant' : 'success'})
@@ -111,7 +111,7 @@ export default {
         filterRowsFunction: function(user,filterObj) {
             //filter should check lastname, firstname, mail, username
             if(filterObj.hideWithTargetPoints) {
-                if(user.targetAmount > 0) {
+                if(user?.targetAmount > 0) {
                     return false
                 }
             }

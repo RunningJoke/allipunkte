@@ -10,7 +10,7 @@ import { requestManager } from '@/plugins/requestManager.js'
 
 
 // Install BootstrapVue
-Vue.use(ToastPlugin, { 'BToast': { toaster: 'b-toaster-bottom-full' , solid: true}})
+Vue.use(ToastPlugin, { 'BToast': { toaster: 'b-toaster-bottom-right' , solid: true}})
 Vue.use(BootstrapVue)
 // Optionally install the BootstrapVue icon components plugin
 Vue.use(IconsPlugin)
