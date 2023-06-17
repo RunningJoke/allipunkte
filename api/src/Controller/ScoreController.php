@@ -44,6 +44,23 @@ class ScoreController extends AbstractController
         
         return new JsonResponse(['userScore' => $userScore->getAmount()]);
     }
+
+    
+    /**
+     * @Route("api/scores/{id}/setPaymentStatus", name="score_update_payment_status", methods={"POST"})
+     */
+    public function setPaymentStatus(int $id, Request $request)
+    {
+        $this->denyAccessUnlessGranted("ROLE_ADMIN");
+        //fetch score entry
+        $scoreEntry = $this->em->getRepository(\App\Entity\Score::class)->findOneById($id);
+        $jsonArray = json_decode($request->getContent(),true);
+        $scoreEntry->setPaymentStatus($jsonArray['newPaymentStatus']);
+        $this->em->flush();
+
+        return new JsonResponse(['paymentStatus' => $scoreEntry->getPaymentStatus()]);
+    }
+
     
     
     /**

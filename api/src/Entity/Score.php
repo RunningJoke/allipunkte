@@ -71,6 +71,9 @@ class Score
      */
     private $paymentStatus;
 
+    /**
+     * @Groups({"USER_READ_ADMIN"})
+     */
     public function getId(): ?int
     {
         return $this->id;
@@ -103,6 +106,9 @@ class Score
         return $this;
     }
 
+    /**
+     * @Groups({"USER_READ_ADMIN"})
+     */
     public function getAmount(): ?int
     {
         return $this->amount;
@@ -130,6 +136,9 @@ class Score
         return $this;
     }
 
+    /**
+     * @Groups({"USER_READ_ADMIN"})
+     */
     public function getPaymentStatus(): ?int
     {
         return $this->paymentStatus;

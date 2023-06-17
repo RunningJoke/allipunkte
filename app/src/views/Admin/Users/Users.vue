@@ -81,6 +81,36 @@
             hide-footer
             >
             <user-form :value="detailUser" disabled />
+            
+            <table v-if="!loading" >
+                <thead class="bg-light">
+                    <tr class="border-bottom border-secondary">
+                        <td class="p-1">Saison</td>
+                        <td class="p-1">erreicht</td>
+                        <td class="p-1">benötigt</td>
+                        <td class="p-1">Betrag</td>
+                        <td class="p-1">Status</td>
+                    </tr>
+                </thead>
+                <tbody>
+                    <template 
+                        v-for="(score,idx) in detailUser.scores" >
+                    <tr 
+                        
+                        :key="'user-score-'+idx"
+                        class="border-bottom border-secondary"
+                        v-if="score.cycle.id != $store.getters.getCurrentCycle.id"
+                        >
+                        <td class="p-1">{{ getCycleById(score.cycle.id).name }}</td>
+                        <td class="p-1 text-center">{{ score.amount }}</td>
+                        <td class="p-1 text-center">{{ score.targetAmount }}</td>
+                        <td class="p-1 text-center">{{ buildStatus(score) }}</td>
+                        <td class="p-1"><b-form-checkbox @input="updatePaymentStatus(score,$event)" :checked="score.paymentStatus == 3" /></td>
+                    </tr>
+                    </template>
+                </tbody>
+            </table>
+
         </b-modal>
     </div>
 </template>
@@ -108,6 +138,22 @@ export default {
         }
     },
     methods: {
+        getCycleById: function(cycleId) {
+            let cycle = this.$store.getters.getCycles.find(cyc => cyc.id == cycleId)
+            return cycle
+        },
+        buildStatus: function(score) {
+            let cycle = this.getCycleById(score.cycle.id)
+            let amountDue = (cycle.costPerPoint * Math.max(0,score.targetAmount - score.amount)) / 100
+
+            let amountString = amountDue.toLocaleString('de-DE',{
+                style: "currency", currency: "EUR"
+            })
+            //
+            if(score.targetAmount == 0 || score.amount >= score.targetAmount) return "-"
+            if(score.targetAmount < score.amount || score.paymentStatus == 3) return amountString + " ✔"
+            if(score.targetAmount > score.amount && score.paymentStatus != 3) return amountString + " ✖"
+        },
         filterRowsFunction: function(user,filterObj) {
             //filter should check lastname, firstname, mail, username
             if(filterObj.hideWithTargetPoints) {
@@ -118,6 +164,15 @@ export default {
             let fs = filterObj.filterString
             return user.lastname.includes(fs) || user.firstname.includes(fs) || user.mail.includes(fs) || user.username.includes(fs)
         },
+        updatePaymentStatus: async function(score,ev) {
+            try {
+                await this.$request.sendJsonRequest(this.$store.getters.baseUrl+'api/scores/'+score.id+'/setPaymentStatus' , 'POST', {"newPaymentStatus" : ev ? 3 : 0})
+
+                score.paymentStatus = ev ? 3 : 0
+            } catch {
+                this.$bvToast.toast('Zahlstatus konnte nicht aktualisiert werden', {variant: 'danger'})
+            }
+        },
         updateTargetScore: async function(targetUser) {
              try {
                 await this.$request.sendJsonRequest(this.$store.getters.baseUrl+'api/users/'+targetUser.id+'/setTargetPoints' , 'POST', {"newTargetScore" : this.newTarget})
@@ -125,6 +180,8 @@ export default {
                 this.$bvToast.toast('Zielwert für '+targetUser.firstname+' '+targetUser.lastname+' aktualisiert', {variant: 'success'})
                 let currentScore = targetUser?.scores?.find(score => score?.cycle?.id == this.$store.getters.getCurrentCycle?.id) ?? null
                 currentScore.targetAmount = this.newTarget
+
+
             } catch {
                 this.$bvToast.toast('Zielwert konnte nicht aktualisiert werden', {variant: 'danger'})
             }

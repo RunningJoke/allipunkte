@@ -15,11 +15,13 @@ const store = new Vuex.Store({
 	  userList: [],
 	  cycleList: [],
 	  transactions: [],
+	  pastCycles: [],
 	  userScore: 0,
 	  targetScore: 0
   },
   mutations: {
 	  setTransactions(state, value) { state.transactions = value },
+	  setPastCycles(state, value) { state.pastCycles = value },
 	  setUserList(state, value) { state.userList = value },
 	  setCurrentCycle(state, value) { state.currentCycle = value },
 	  setLoggedInUser(state, value) { state.loggedInUser = value },
@@ -71,7 +73,7 @@ const store = new Vuex.Store({
 
 		} catch {
 			//add error handling
-			this.$bvToast.toast('Laden der Daten fehlgeschlagen', {variant: 'danger'})
+			window.$globalVue.$bvToast.toast('Laden der Daten fehlgeschlagen', {variant: 'danger'})
 
 		}
 	},
@@ -83,7 +85,7 @@ const store = new Vuex.Store({
 			context.commit("setCycles", responseBody)
 		} catch {
 			//add error handling
-			this._vm.$bvToast.toast('Laden der Daten fehlgeschlagen', {variant: 'danger'})
+			window.$globalVue.$bvToast.toast('Laden der Daten fehlgeschlagen', {variant: 'danger'})
 		}
 	},
 	logoutUser: async function(context) {
@@ -103,7 +105,7 @@ const store = new Vuex.Store({
 			context.commit('setUserScore',response.data.userScore)
 		} catch {
 			context.commit('setUserScore',0)
-			this._vm.$bvToast.toast('Benutzerdaten konnten nicht geladen werden', {variant: 'danger'})
+			window.$globalVue.$bvToast.toast('Benutzerdaten konnten nicht geladen werden', {variant: 'danger'})
 		}
 	},
 	getTransactions: async function(context, payload) {
@@ -112,7 +114,16 @@ const store = new Vuex.Store({
 			context.commit('setTransactions',response)
 		} catch {
 			context.commit('setTransactions',[])
-			this._vm.$bvToast.toast('Transaktionen konnten nicht geladen werden', {variant: 'danger'})
+			window.$globalVue.$bvToast.toast('Transaktionen konnten nicht geladen werden', {variant: 'danger'})
+		}
+	},
+	getPastCycles: async function(context, payload) {
+		try {
+			let response = await requestManager.sendJsonRequest(config.baseUrl+"pastCycles")
+			context.commit('setPastCycles',response)
+		} catch {
+			context.commit('setPastCycles',[])
+			window.$globalVue.$bvToast.toast('Vergangene Saisons konnten nicht geladen werden', {variant: 'danger'})
 		}
 	},
 	getUsers: async function(context) {
@@ -121,7 +132,7 @@ const store = new Vuex.Store({
 			context.commit('setUserList',data)
 		} catch {
 			context.commit('setUserList',[])
-			this._vm.$bvToast.toast('Benutzer konnten nicht geladen werden', {variant: 'danger'})
+			window.$globalVue.$bvToast.toast('Benutzer konnten nicht geladen werden', {variant: 'danger'})
 		}
 	}
 	  
@@ -138,6 +149,7 @@ const store = new Vuex.Store({
 	  isLoggedInUserAdmin: state => state?.loggedInUser?.isAdmin ?? false,
 	  isLoggedInUserCreator: state => state?.loggedInUser?.isCreator ?? false,
 	  getTransactions: state => state.transactions,
+	  getPastCycles: state => state.pastCycles,
 	  getSentTransactions: (state) => {
 		  return state.transactions && state.transactions.filter((item) => (item.origin === "/users/"+state.loggedInUser.id))
 	  },

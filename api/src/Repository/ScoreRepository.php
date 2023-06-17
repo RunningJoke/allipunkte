@@ -2,9 +2,10 @@
 
 namespace App\Repository;
 
+use App\Entity\User;
 use App\Entity\Score;
-use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
+use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 
 /**
  * @method Score|null find($id, $lockMode = null, $lockVersion = null)
@@ -17,6 +18,17 @@ class ScoreRepository extends ServiceEntityRepository
     public function __construct(ManagerRegistry $registry)
     {
         parent::__construct($registry, Score::class);
+    }
+
+    public function getPastCycleStates(User $user)
+    {
+        return $this->createQueryBuilder('s')
+            ->andWhere('s.user = :usr')
+            ->join('s.cycle','c','ON')
+            ->setParameter('usr',$user)
+            ->orderBy('s.id','ASC')
+            ->getQuery()
+            ->getResult();
     }
 
     // /**
