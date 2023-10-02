@@ -20,7 +20,7 @@
 	</b-form-group>
 	<div class="d-flex justify-content-between">
 		<b-button type="submit"><b-spinner size="sm" v-if="isLoggingIn" class="mr-2" /> Login</b-button>
-		<b-link class="ml-auto p-1" href="https://localhost:8000/reset-password">Passwort vergessen?</b-link>
+		<b-link class="ml-auto p-1"  :href="apiUrl + 'reset-password'" target="_blank">Passwort vergessen?</b-link>
 	</div>
   </b-form>
   
@@ -36,12 +36,15 @@
 <script>
 // @ is an alias to /src
 
+import config from '@/config.json'
+
 export default {
   name: 'Login',
   data() {
 	return { 
 		login: { username: "", password: ""},
-		isLoggingIn: false
+		isLoggingIn: false,
+		apiUrl: config.baseUrl
 	}
   },
   methods: {

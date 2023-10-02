@@ -22,10 +22,12 @@ Vue.use(requestManager)
 
 Vue.config.productionTip = false
 
-new Vue({
+let globalVue = new Vue({
   router,
   store,
   render: h => h(App)
 }).$mount('#app')
+
+window.$globalVue = globalVue
 
 store.dispatch("loadUserData")
