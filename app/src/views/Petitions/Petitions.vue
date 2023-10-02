@@ -164,7 +164,7 @@
             </div>
 
 
-            <b-input-group v-if="canEditPetition" prepend="benötigt" class="flex-nowrap mb-2">
+            <b-input-group v-if="canEditPetition" prepend="besetzt" class="flex-nowrap mb-2">
                 <b-input-group-prepend>
                     <b-form-input  
                         type="number" 
@@ -174,7 +174,7 @@
                 </b-input-group-prepend>
                 
                 <b-input-group-text>
-                    /
+                    benötigt
                 </b-input-group-text>
 
                 <b-input-group-append>
@@ -187,7 +187,7 @@
             </b-input-group>
 
             <div v-else class="d-flex">
-                <div>Plätze {{ petitionInModal.filledPositions }} / {{ petitionInModal.openPositions}}</div>
+                <div>Plätze besetzt/gesamt {{ petitionInModal.filledPositions }} / {{ petitionInModal.openPositions}}</div>
                 <b-badge class="ml-auto">{{ petitionInModal.offeredPoints || 0 }} Punkte</b-badge>
             </div>
 
