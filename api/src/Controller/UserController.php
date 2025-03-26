@@ -3,9 +3,10 @@
 namespace App\Controller;
 
 use App\Entity\Score;
-use App\Repository\CycleRepository;
 use App\Repository\UserRepository;
+use App\Repository\CycleRepository;
 use Doctrine\ORM\EntityManagerInterface;
+use ApiPlatform\Api\IriConverterInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Security\Core\Security;
 use Symfony\Component\Routing\Annotation\Route;
@@ -147,8 +148,8 @@ class UserController extends AbstractController
         
         $jsonArray = json_decode($request->getContent(),true);
         
-        if(!isset($jsonArray['oldPassword']) || !isset($jsonArray['newPassword']) || !isset($jsonArray['newPasswordVerification']) ||
-        $jsonArray['newPassword'] !== $jsonArray['newPasswordVerification']) {
+        if((!isset($jsonArray['oldPassword']) || !isset($jsonArray['newPassword']) || !isset($jsonArray['newPasswordVerification']) ||
+        $jsonArray['newPassword'] !== $jsonArray['newPasswordVerification'])) {
             return $this->json(['status' => 400, 'message' => 'invalid request'],400);
         }
 
@@ -157,6 +158,34 @@ class UserController extends AbstractController
         $newEncodedPassword = $this->passwordHasher->hashPassword($currentUser, $jsonArray['newPassword']);
         
         $currentUser->setPassword($newEncodedPassword);
+
+        $this->em->flush();
+                
+        
+        return new JsonResponse(['status' => 200, 'message' => 'password updated'],200);
+        
+    }
+
+    
+    /**
+     * @Route("/updatePasswordAdmin", name="user_update_password_admin", methods={"POST"})
+     */
+    public function updatePasswordAsAdmin(Request $request, IriConverterInterface $converter)
+    {        
+        $this->denyAccessUnlessGranted("ROLE_ADMIN");
+
+        $jsonArray = json_decode($request->getContent(),true);
+        
+        if((!isset($jsonArray['targetUser']) || !isset($jsonArray['newPassword']) || !isset($jsonArray['newPasswordVerification']) ||
+        $jsonArray['newPassword'] !== $jsonArray['newPasswordVerification'])) {
+            return $this->json(['status' => 400, 'message' => 'invalid request'],400);
+        }
+
+        $targetUser = $converter->getResourceFromIri($jsonArray['targetUser']);
+
+        $newEncodedPassword = $this->passwordHasher->hashPassword($targetUser, $jsonArray['newPassword']);
+        
+        $targetUser->setPassword($newEncodedPassword);
 
         $this->em->flush();
                 
