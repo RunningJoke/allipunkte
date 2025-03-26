@@ -10,6 +10,7 @@ import moment from 'moment'
 Vue.use(Vuex)
 const store = new Vuex.Store({
   state: {
+	  isLoading: true,
 	  currentCycle: {},
 	  loggedInUser: {},
 	  userList: [],
@@ -20,6 +21,7 @@ const store = new Vuex.Store({
 	  targetScore: 0
   },
   mutations: {
+	  setIsLoadingData(state, value) { state.isLoading = value },
 	  setTransactions(state, value) { state.transactions = value },
 	  setPastCycles(state, value) { state.pastCycles = value },
 	  setUserList(state, value) { state.userList = value },
@@ -48,7 +50,7 @@ const store = new Vuex.Store({
 		}
 	},
 	loadUserData: async function(context) {
-		
+		context.commit('setIsLoadingData', true)
 		try {
 			let responseBody = await requestManager.sendJsonRequest(config.baseUrl+"updateUserData")
 			//add field validation
@@ -73,8 +75,17 @@ const store = new Vuex.Store({
 
 		} catch {
 			//add error handling
-			window.$globalVue.$bvToast.toast('Laden der Daten fehlgeschlagen', {variant: 'danger'})
+			context.commit("setLoggedInUser", {})
+			context.commit("setCurrentCycle", {})
+			context.commit("setUserScore", 0)
+			context.commit("setTargetScore", 0)
+			if(router.currentRoute.name != "Login") {
+				router.push('/')
+			}
+			window.$globalVue.$bvToast.toast('Bitte neu einloggen', {variant: 'primary'})
 
+		} finally {
+			context.commit('setIsLoadingData', false)
 		}
 	},
 	loadAdminData: async function(context) {
@@ -146,6 +157,7 @@ const store = new Vuex.Store({
 	  getUsers: state => state.userList,
 	  getCycles: state => state.cycleList,
 	  getUserIRI: state => "/users/"+state.loggedInUser.id,
+	  isLoading: state => state?.isLoading ?? false,
 	  isLoggedInUserAdmin: state => state?.loggedInUser?.isAdmin ?? false,
 	  isLoggedInUserCreator: state => state?.loggedInUser?.isCreator ?? false,
 	  getTransactions: state => state.transactions,
