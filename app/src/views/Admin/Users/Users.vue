@@ -1,6 +1,6 @@
 <template>
     <div class="text-left p-1 position-relative">
-    <div class="d-flex flex-row mb-2 align-items-center bg-white position-sticky py-2" style="top: 0; z-index:5;">
+    <div class="d-flex flex-row mb-2 align-items-center bg-white position-sticky py-2 flex-wrap-reverse " style="top: 0; z-index:5;">
         
         <b-button variant="success" v-b-modal.createNewUser class="mr-2 text-nowrap" size="sm">
             + <b-icon-person />
@@ -23,7 +23,7 @@
         </b-input-group>
 
 
-         <b-input-group class="flex-nowrap" style="width: 600px;">
+         <b-input-group class="flex-wrap" style="width: 600px;">
             <b-input-group-prepend is-text>
                 <b-icon-search />
             </b-input-group-prepend>
@@ -47,6 +47,7 @@
             :filter="filterItem"
             :filter-function="filterRowsFunction"
             :items="userItems" 
+            responsive
             :fields="fields">
             <template #cell(actions)="row">
                 <div class="d-flex flex-nowrap">
@@ -57,7 +58,7 @@
                             </b-input-group-append>
                     </b-input-group>
                     
-                    <b-button size="sm" @click="detailUser = row.item" v-b-modal.displayUser class="mr-1">
+                    <b-button size="sm" @click="detailUser = JSON.parse(JSON.stringify(row.item))" v-b-modal.displayUser class="mr-1">
                     Details
                     </b-button>
                 </div>
@@ -78,11 +79,13 @@
         <b-modal 
             id="displayUser" 
             size="lg" 
-            hide-footer
+            ok-title="Aktualisieren"
+            cancel-title="Abbrechen"
+            @ok="updateUserData"
             >
-            <user-form :value="detailUser" disabled />
+            <user-form :value="detailUser" :disabled="!$store.getters.isLoggedInUserAdmin" />
             
-            <table v-if="!loading" >
+            <table >
                 <thead class="bg-light">
                     <tr class="border-bottom border-secondary">
                         <td class="p-1">Saison</td>
@@ -186,6 +189,59 @@ export default {
                 this.$bvToast.toast('Zielwert konnte nicht aktualisiert werden', {variant: 'danger'})
             }
         },
+        updateUserData: async function($event) {
+           try {
+            $event.preventDefault();
+            //validate the initial password request and check against the password_confirm field
+            if(!!this.detailUser.password && !!this.detailUser.password_confirm && this.detailUser.password !== this.detailUser.password_confirm) {
+                this.$bvToast.toast('Passwort nicht angegeben/ stimmt nicht überein', {variant: 'danger'})
+                //dont continue saving
+                $event.preventDefault();
+                return
+            }
+
+            if(!!this.detailUser.password) {
+                let transmitObject = {
+                    targetUser: '/users/' + this.detailUser.id,
+                    newPassword: this.detailUser.password,
+                    newPasswordVerification: this.detailUser.password_confirm
+                }
+                let res = await this.$request.sendJsonRequest(this.$store.getters.baseUrl+'updatePasswordAdmin' , 'POST', transmitObject)
+                this.$bvToast.toast('Passwort geändert', {variant: 'primary'})
+
+                this.detailUser.password = ""
+                this.detailUser.password_confirm = ""
+            }
+
+            let dataTransmit = JSON.parse(JSON.stringify(this.detailUser))
+
+            delete dataTransmit.scores
+            delete dataTransmit._rowVariant
+
+            await this.$request.sendJsonRequest(this.$store.getters.baseUrl+'users/'+this.detailUser.id , 'PUT', dataTransmit)
+
+            this.$bvToast.toast('Benutzer erfolgreich aktualisiert', {variant: 'success'})
+            
+            //update stored user
+            let original = this.$store.getters.getUsers.find(u => u.id == dataTransmit.id)
+            
+            if(!!original) {
+                original.username       = dataTransmit.username
+                original.firstname      = dataTransmit.firstname
+                original.lastname       = dataTransmit.lastname
+                original.mail           = dataTransmit.mail
+                original.license        = dataTransmit.license
+                original.targetAmount   = dataTransmit.targetAmount
+                original.isAdmin        = dataTransmit.isAdmin
+                original.isCreator      = dataTransmit.isCreator
+            }
+            this.$bvModal.hide("displayUser")
+
+           } catch {               
+               this.$bvToast.toast('Benutzer konnte nicht aktualisiert werden', {variant: 'danger'})
+           }
+        },
+
         sendUserData: async function() {
            try {
             //validate the initial password request and check against the password_confirm field
