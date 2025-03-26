@@ -79,7 +79,9 @@ const store = new Vuex.Store({
 			context.commit("setCurrentCycle", {})
 			context.commit("setUserScore", 0)
 			context.commit("setTargetScore", 0)
-			router.push('/')
+			if(router.currentRoute.name != "Login") {
+				router.push('/')
+			}
 			window.$globalVue.$bvToast.toast('Bitte neu einloggen', {variant: 'primary'})
 
 		} finally {
