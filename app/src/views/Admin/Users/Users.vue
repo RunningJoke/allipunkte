@@ -215,6 +215,7 @@ export default {
 
             let dataTransmit = JSON.parse(JSON.stringify(this.detailUser))
 
+            delete dataTransmit.password
             delete dataTransmit.scores
             delete dataTransmit._rowVariant
 
