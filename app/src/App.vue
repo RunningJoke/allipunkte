@@ -1,7 +1,7 @@
 <template>
   <div id="app">
     <div class="d-flex flex-column justify-content-between vh-100">
-      <header class="mb-1">
+      <header class="">
           <b-navbar toggleable="lg" type="dark" variant="primary">
           <b-navbar-brand href="#"><img src="./assets/skyline.svg" height="30px"/></b-navbar-brand>
 
@@ -27,7 +27,14 @@
         </b-navbar>
       </header>
       <main class="overflow-auto h-100">
+        <b-overlay :show="$store.getters.isLoading" class="h-100" opacity="1" variant="primary">
+        <template #overlay>
+          <div class="m-auto">
+            <img src="./assets/alli_logo.svg" class="w-100"/>
+          </div>
+        </template>
         <router-view/>
+        </b-overlay>
       </main>
       <footer class="app--footer bg-primary d-flex justify-content-center align-items-center">
         <h4 v-if="$store.getters.isLoggedIn" class="text-white p-1 mb-0">Deine Punkte: {{ $store.getters.getUserScore || 0 }} / {{ $store.getters.getTargetScore || 0 }}</h4>
