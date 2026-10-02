@@ -4,7 +4,7 @@
       id="fieldset-horizontal"
       label-cols-sm="4"
       label-cols-lg="3"
-      label="Benutzername"
+      label="Benutzername oder E-Mail"
       label-for="input-horizontal"
 		>
 		<b-form-input type="text" v-model="login.username" ></b-form-input>
@@ -36,7 +36,7 @@
 <script>
 // @ is an alias to /src
 
-import config from '@/config.json'
+import config from '@/config.js'
 
 export default {
   name: 'Login',

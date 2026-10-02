@@ -53,7 +53,7 @@
 
 <script>
 import transactionForm from '@/components/TransactionForm'
-import config from '@/config.json'
+import config from '@/config.js'
 
 export default {
 	name: "SendPoints",

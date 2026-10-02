@@ -24,12 +24,20 @@ class UserRepository extends ServiceEntityRepository implements UserLoaderInterf
 
     public function loadUserByIdentifier(string $usernameOrEmail) : ?UserInterface
     {
-        return $this->createQueryBuilder('u')
-            ->andWhere('u.username = :val')
-            ->orWhere('u.mail = :val')
+        $users = $this->createQueryBuilder('u')
+            ->where('u.username = :val OR u.mail = :val')
             ->setParameter('val', $usernameOrEmail)
             ->getQuery()
-            ->getOneOrNullResult();
+            ->getResult();
+
+        // mail is not unique: a username match wins, an ambiguous mail matches nobody
+        foreach ($users as $user) {
+            if (mb_strtolower($user->getUsername()) === mb_strtolower($usernameOrEmail)) {
+                return $user;
+            }
+        }
+
+        return count($users) === 1 ? $users[0] : null;
     }
     
     // /**
