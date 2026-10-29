@@ -42,7 +42,7 @@
 <script>
 // @ is an alias to /src
 
-import config from '@/config.json'
+import config from '@/config.js'
 
 export default {
   name: 'ChangePassword',

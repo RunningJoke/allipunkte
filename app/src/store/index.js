@@ -1,6 +1,6 @@
 import Vue from 'vue'
 import Vuex from 'vuex'
-import config from '@/config.json'
+import config from '@/config.js'
 import router from '@/router'
 
 import { requestManager } from '@/plugins/requestManager'

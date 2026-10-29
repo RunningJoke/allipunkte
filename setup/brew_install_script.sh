@@ -4,4 +4,4 @@
 echo "Installing depedencies for backend"
 brew install php
 brew install composer
-brew install symfony
+brew install symfony-cli

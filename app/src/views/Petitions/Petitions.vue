@@ -213,7 +213,7 @@
 <script>
 
 import moment from 'moment'
-import config from '@/config.json'
+import config from '@/config.js'
 
 export default {
     name: "PetitionsList",
