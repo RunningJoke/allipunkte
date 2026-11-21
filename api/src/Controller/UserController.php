@@ -6,7 +6,7 @@ use App\Entity\Score;
 use App\Repository\UserRepository;
 use App\Repository\CycleRepository;
 use Doctrine\ORM\EntityManagerInterface;
-use ApiPlatform\Api\IriConverterInterface;
+use ApiPlatform\Core\Api\IriConverterInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Security\Core\Security;
 use Symfony\Component\Routing\Annotation\Route;
@@ -181,7 +181,10 @@ class UserController extends AbstractController
             return $this->json(['status' => 400, 'message' => 'invalid request'],400);
         }
 
-        $targetUser = $converter->getResourceFromIri($jsonArray['targetUser']);
+        $targetUser = $converter->getItemFromIri($jsonArray['targetUser']);
+        if(!$targetUser instanceof \App\Entity\User) {
+            return $this->json(['status' => 400, 'message' => 'invalid request'],400);
+        }
 
         $newEncodedPassword = $this->passwordHasher->hashPassword($targetUser, $jsonArray['newPassword']);
         
