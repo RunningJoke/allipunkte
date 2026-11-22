@@ -1,0 +1,13 @@
+<IfModule mod_rewrite.c>
+  RewriteEngine On
+  RewriteBase /
+
+  # Serve index.html directly when it's requested
+  RewriteRule ^index\.html$ - [L]
+
+  # If the request is not an existing file or directory...
+  RewriteCond %{REQUEST_FILENAME} !-f
+  RewriteCond %{REQUEST_FILENAME} !-d
+  # ...hand it to the SPA
+  RewriteRule . /index.html [L]
+</IfModule>
