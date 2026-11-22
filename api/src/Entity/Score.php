@@ -3,13 +3,9 @@
 namespace App\Entity;
 
 use Doctrine\ORM\Mapping as ORM;
-use ApiPlatform\Core\Annotation\ApiProperty;
-use ApiPlatform\Core\Annotation\ApiResource;
-use Symfony\Component\Serializer\Annotation\Groups;
+use Symfony\Component\Serializer\Attribute\Groups;
 
-/**
- * @ORM\Entity(repositoryClass="App\Repository\ScoreRepository")
- */
+#[ORM\Entity(repositoryClass: \App\Repository\ScoreRepository::class)]
 class Score
 {
 
@@ -37,51 +33,35 @@ class Score
     const PAYMENT_FULFILLED = 3;
 
 
-    /**
-     * @ORM\Id()
-     * @ORM\GeneratedValue()
-     * @ORM\Column(type="integer")
-     */
+    #[ORM\Id]
+    #[ORM\GeneratedValue]
+    #[ORM\Column(type: 'integer')]
     private $id;
 
-    /**
-     * @ORM\ManyToOne(targetEntity="App\Entity\Cycle", inversedBy="scores")
-     * @ORM\JoinColumn(nullable=false)
-     */
+    #[ORM\JoinColumn(nullable: false)]
+    #[ORM\ManyToOne(targetEntity: \App\Entity\Cycle::class, inversedBy: 'scores')]
     private $cycle;
 
-    /**
-     * @ORM\ManyToOne(targetEntity="App\Entity\User", inversedBy="scores")
-     * @ORM\JoinColumn(nullable=false)
-     */
+    #[ORM\JoinColumn(nullable: false)]
+    #[ORM\ManyToOne(targetEntity: \App\Entity\User::class, inversedBy: 'scores')]
     private $user;
 
-    /**
-     * @ORM\Column(type="integer", nullable=true)
-     */
+    #[ORM\Column(type: 'integer', nullable: true)]
     private $amount;
 
-    /**
-     * @ORM\Column(type="integer")
-     */
+    #[ORM\Column(type: 'integer')]
     private $targetAmount;
 
-    /**
-     * @ORM\Column(type="integer", nullable=true, options={"default" : 0})
-     */
+    #[ORM\Column(type: 'integer', nullable: true, options: ['default' => 0])]
     private $paymentStatus;
 
-    /**
-     * @Groups({"USER_READ_ADMIN"})
-     */
+    #[Groups(['USER_READ_ADMIN'])]
     public function getId(): ?int
     {
         return $this->id;
     }
 
-    /**
-     * @Groups({"USER_READ_ADMIN"})
-     */
+    #[Groups(['USER_READ_ADMIN'])]
     public function getCycle(): ?Cycle
     {
         return $this->cycle;
@@ -106,9 +86,7 @@ class Score
         return $this;
     }
 
-    /**
-     * @Groups({"USER_READ_ADMIN"})
-     */
+    #[Groups(['USER_READ_ADMIN'])]
     public function getAmount(): ?int
     {
         return $this->amount;
@@ -121,9 +99,7 @@ class Score
         return $this;
     }
 
-    /**
-     * @Groups({"USER_READ_ADMIN"})
-     */
+    #[Groups(['USER_READ_ADMIN'])]
     public function getTargetAmount(): ?int
     {
         return $this->targetAmount;
@@ -136,9 +112,7 @@ class Score
         return $this;
     }
 
-    /**
-     * @Groups({"USER_READ_ADMIN"})
-     */
+    #[Groups(['USER_READ_ADMIN'])]
     public function getPaymentStatus(): ?int
     {
         return $this->paymentStatus;

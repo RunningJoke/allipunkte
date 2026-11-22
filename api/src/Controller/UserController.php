@@ -6,10 +6,10 @@ use App\Entity\Score;
 use App\Repository\UserRepository;
 use App\Repository\CycleRepository;
 use Doctrine\ORM\EntityManagerInterface;
-use ApiPlatform\Core\Api\IriConverterInterface;
+use ApiPlatform\Metadata\IriConverterInterface;
 use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\Security\Core\Security;
-use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Bundle\SecurityBundle\Security;
+use Symfony\Component\Routing\Attribute\Route;
 use App\Services\UserFactory\UserFactoryInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -37,12 +37,7 @@ class UserController extends AbstractController
         $this->em = $em;
     }
     
-    /**
-     * 
-     * 
-     * 
-     * @Route("api/users", name="user_create", methods={"POST"})
-     */
+    #[Route(path: 'api/users', name: 'user_create', methods: ['POST'])]
     public function createNew(Request $request)
     {
         $this->denyAccessUnlessGranted("ROLE_ADMIN");
@@ -95,12 +90,7 @@ class UserController extends AbstractController
 
 
     
-    /**
-     * 
-     * 
-     * 
-     * @Route("api/users/{id}/setTargetPoints", name="user_update_target_points", methods={"POST"})
-     */
+    #[Route(path: 'api/users/{id}/setTargetPoints', name: 'user_update_target_points', methods: ['POST'])]
     public function setTargetPoints(int $id, Request $request)
     {
         $this->denyAccessUnlessGranted("ROLE_ADMIN");
@@ -135,9 +125,7 @@ class UserController extends AbstractController
         
     }
 
-    /**
-     * @Route("/updatePassword", name="user_update_password", methods={"POST"})
-     */
+    #[Route(path: '/updatePassword', name: 'user_update_password', methods: ['POST'])]
     public function updatePassword(Request $request, Security $security)
     {        
         
@@ -167,9 +155,7 @@ class UserController extends AbstractController
     }
 
     
-    /**
-     * @Route("/updatePasswordAdmin", name="user_update_password_admin", methods={"POST"})
-     */
+    #[Route(path: '/updatePasswordAdmin', name: 'user_update_password_admin', methods: ['POST'])]
     public function updatePasswordAsAdmin(Request $request, IriConverterInterface $converter)
     {        
         $this->denyAccessUnlessGranted("ROLE_ADMIN");
@@ -181,7 +167,7 @@ class UserController extends AbstractController
             return $this->json(['status' => 400, 'message' => 'invalid request'],400);
         }
 
-        $targetUser = $converter->getItemFromIri($jsonArray['targetUser']);
+        $targetUser = $converter->getResourceFromIri($jsonArray['targetUser']);
         if(!$targetUser instanceof \App\Entity\User) {
             return $this->json(['status' => 400, 'message' => 'invalid request'],400);
         }

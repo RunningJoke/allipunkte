@@ -6,15 +6,13 @@ use App\Entity\Cycle;
 use App\Entity\Score;
 use Doctrine\Persistence\ManagerRegistry;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 
 class SecurityController extends AbstractController
 {
-    /**
-     * @Route("/security", name="security")
-     */
+    #[Route(path: '/security', name: 'security')]
     public function index()
     {
         return $this->render('security/index.html.twig', [
@@ -22,34 +20,28 @@ class SecurityController extends AbstractController
         ]);
     }
     
-    /**
-     * @Route("/jlogin", name="jlogin")
-     */
+    #[Route(path: '/jlogin', name: 'jlogin')]
     public function login()  : Response
     {
         return new JsonResponse(['status' => 200, 'message' => 'authentication successful']);
     }
     
-    /**
-     * @Route("/", name="landing")
-     */
+    #[Route(path: '/', name: 'landing')]
     public function landing() : Response
     {
         return new JsonResponse([]);
     }
     
-    /**
-     * @Route("/jlogout", name="jlogout")
-     */
+    #[Route(path: '/jlogout', name: 'jlogout')]
     public function logout() 
     {
         return new JsonResponse(['status' => 200, 'message' => 'logout successful']);
     }
     
     /**
-     * @Route("/updateUserData", name="userData")
      * @return JsonResponse
      */
+    #[Route(path: '/updateUserData', name: 'userData')]
     public function updateUserData(ManagerRegistry $doctrine) : Response
     {
         $this->denyAccessUnlessGranted("ROLE_USER");
