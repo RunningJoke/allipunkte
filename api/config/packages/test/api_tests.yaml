@@ -1,0 +1,7 @@
+# Test-only: SQLite-compatible table quoting for the API test suite (see tests/Support).
+services:
+    App\Tests\Support\SqliteTableQuoteStrategy: ~
+
+doctrine:
+    orm:
+        quote_strategy: App\Tests\Support\SqliteTableQuoteStrategy
