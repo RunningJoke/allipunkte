@@ -82,8 +82,10 @@ class UserController extends AbstractController
             $jsonArray['isCreator'] ?? false,
             $jsonArray['password'] ?? ""
         );
-                
-        
+
+        // never send the password back (#63)
+        unset($jsonArray['password'], $jsonArray['password_confirm']);
+
         return new JsonResponse($jsonArray,201);
         
     }
