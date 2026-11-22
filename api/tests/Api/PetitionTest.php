@@ -131,27 +131,43 @@ class PetitionTest extends ApiTestCase
         self::assertSame('basic', $stored->getCreateUser()->getUsername());
     }
 
-    public function testCreateWithAnotherUsersIriIsAcceptedAsThatUser(): void
+    public function testCreateIgnoresAnotherUsersIriAndUsesTheLoggedInUser(): void
     {
-        // NOTE: current behaviour, possibly a bug: the API does not check that createUser is the
-        // logged-in user, so a user can create a petition in the name of someone else.
+        // #62: the creator is always the logged-in user, a client-supplied createUser is ignored
         $response = $this->jsonRequest('POST', '/petitions', $this->frontendBody(['createUser' => '/users/1']), 'basic');
+        $data = $this->decode($response);
 
         self::assertSame(201, $response->getStatusCode());
-        self::assertSame('/users/1', $this->decode($response)['createUser']);
+        self::assertSame('/users/3', $data['createUser']);
+        $stored = $this->freshEm()->getRepository(Petition::class)->find($data['id']);
+        self::assertSame('basic', $stored->getCreateUser()->getUsername());
     }
 
-    public function testCreateWithoutCreateUserIs500(): void
+    public function testCreateWithoutCreateUserUsesTheLoggedInUser(): void
     {
-        // NOTE: current behaviour, possibly a bug: createUser is NOT NULL but not validated, so a
-        // missing owner surfaces as a database constraint error (500) and not as a 400.
+        // #62: a missing createUser no longer ends in a NOT NULL error
         $body = $this->frontendBody();
         unset($body['createUser']);
 
         $response = $this->jsonRequest('POST', '/petitions', $body, 'basic');
 
-        self::assertSame(500, $response->getStatusCode());
-        self::assertStringContainsString('NOT NULL constraint failed', (string) $this->decode($response)['detail']);
+        self::assertSame(201, $response->getStatusCode());
+        self::assertSame('/users/3', $this->decode($response)['createUser']);
+    }
+
+    public function testPutCannotReassignTheCreator(): void
+    {
+        // #62: the creator cannot hand the petition over to someone else
+        $petition = $this->createPetition('basic');
+
+        $response = $this->jsonRequest('PUT', '/petitions/'.$petition->getId(), $this->frontendBody(['createUser' => '/users/1', 'title' => 'Geändert']), 'basic');
+        $data = $this->decode($response);
+
+        self::assertSame(200, $response->getStatusCode());
+        self::assertSame('/users/3', $data['createUser']);
+        $stored = $this->freshEm()->getRepository(Petition::class)->find($petition->getId());
+        self::assertSame('basic', $stored->getCreateUser()->getUsername());
+        self::assertSame('Geändert', $stored->getTitle());
     }
 
     // ---- PUT /petitions/{id} (creator only) --------------------------------

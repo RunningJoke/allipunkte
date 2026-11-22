@@ -46,8 +46,10 @@ class UserManagementTest extends ApiTestCase
         $response = $this->jsonRequest('POST', '/api/users', self::NEW_USER, 'admin');
 
         self::assertSame(201, $response->getStatusCode());
-        // the response echoes the request body (note: including the plain password)
-        $this->assertKeysExactly(array_keys(self::NEW_USER), $this->decode($response));
+        // the response echoes the request body without the password (#63)
+        $data = $this->decode($response);
+        $this->assertKeysExactly(array_values(array_diff(array_keys(self::NEW_USER), ['password'])), $data);
+        self::assertArrayNotHasKey('password', $data);
 
         $em = $this->freshEm();
         $user = $em->getRepository(User::class)->findOneBy(['username' => 'anna']);
