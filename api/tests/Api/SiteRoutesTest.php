@@ -12,20 +12,21 @@ class SiteRoutesTest extends ApiTestCase
     {
         // NOTE: current behaviour, possibly a bug: the LandingController route "/" is shadowed by
         // API Platform's entrypoint route, so the landing controller can never answer.
-        $response = $this->jsonRequest('GET', '/');
+        $response = $this->jsonRequest('GET', '/', null, null, 'application/ld+json');
         $data = $this->decode($response);
 
         self::assertSame(200, $response->getStatusCode());
-        $this->assertKeysExactly(['resourceNameCollection'], $data);
-        self::assertEqualsCanonicalizing(
-            ['App\Entity\Cycle', 'App\Entity\Petitioning\Petition', 'App\Entity\User'],
-            $data['resourceNameCollection']
-        );
+        self::assertSame('Entrypoint', $data['@type']);
+        foreach (['/cycles', '/petitions', '/users'] as $iri) {
+            self::assertContains($iri, $data);
+        }
     }
 
-    public function testRootIsPublic(): void
+    public function testRootRejectsPlainJson(): void
     {
-        self::assertSame(200, $this->jsonRequest('GET', '/')->getStatusCode());
+        // Deliberate change with API Platform 4 (#57): the entrypoint no longer serves application/json, which
+        // exposed internal class names. The frontend never requests "/".
+        self::assertSame(406, $this->jsonRequest('GET', '/')->getStatusCode());
     }
 
     public function testJsonLdContextForUserIsPublic(): void
