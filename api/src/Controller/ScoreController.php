@@ -80,7 +80,7 @@ class ScoreController extends AbstractController
         
         if($currentCycle !== null) {
             $transactions = $transactionRepo->findOwnTransactions($currentUser, $currentCycle);
-            $transactionJSON = $this->normalizer->normalize($transactions, 'json');
+            $transactionJSON = array_map([$this, 'transactionToArray'], $transactions);
         } else {
             $transactionJSON = [];
         }
@@ -88,6 +88,24 @@ class ScoreController extends AbstractController
         return new JsonResponse($transactionJSON);
     }
     
+    /**
+     * Builds the response format by hand, so related entities are always referenced by IRI
+     * (e.g. "/users/1") and don't depend on the serializer configuration or version.
+     */
+    private function transactionToArray(Transaction $transaction): array
+    {
+        return [
+            'id' => $transaction->getId(),
+            'origin' => $this->iriConverter->getIriFromItem($transaction->getOrigin()),
+            'target' => $this->iriConverter->getIriFromItem($transaction->getTarget()),
+            'description' => $transaction->getDescription(),
+            'amount' => $transaction->getAmount(),
+            'timestamp' => $transaction->getTimestamp()->format(\DateTimeInterface::ATOM),
+            'cycle' => $this->iriConverter->getIriFromItem($transaction->getCycle()),
+            'createdPoints' => $transaction->getCreatedPoints(),
+        ];
+    }
+
     /**
      * @Route("/transfer", name="score_transfer", methods={"POST"})
      */
