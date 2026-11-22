@@ -14,16 +14,13 @@
         ]
     },
     "doctrine/annotations": {
-        "version": "1.13",
+        "version": "1.14",
         "recipe": {
             "repo": "github.com/symfony/recipes",
-            "branch": "master",
-            "version": "1.0",
-            "ref": "a2759dd6123694c8d901d0ec80006e044c2e6457"
-        },
-        "files": [
-            "./config/routes/annotations.yaml"
-        ]
+            "branch": "main",
+            "version": "1.10",
+            "ref": "64d8583af5ea57b7afa4aba4b159907f3a148b05"
+        }
     },
     "doctrine/cache": {
         "version": "2.1.1"
@@ -114,12 +111,6 @@
     "fig/link-util": {
         "version": "1.2.0"
     },
-    "friendsofphp/proxy-manager-lts": {
-        "version": "v1.0.5"
-    },
-    "laminas/laminas-code": {
-        "version": "4.5.1"
-    },
     "nelmio/cors-bundle": {
         "version": "2.2",
         "recipe": {
@@ -146,6 +137,20 @@
     },
     "phpstan/phpdoc-parser": {
         "version": "1.2.0"
+    },
+    "phpunit/phpunit": {
+        "version": "9.6",
+        "recipe": {
+            "repo": "github.com/symfony/recipes",
+            "branch": "main",
+            "version": "9.6",
+            "ref": "6a9341aa97d441627f8bd424ae85dc04c944f8b4"
+        },
+        "files": [
+            "./.env.test",
+            "./phpunit.xml.dist",
+            "./tests/bootstrap.php"
+        ]
     },
     "psr/cache": {
         "version": "3.0.0"
@@ -286,6 +291,21 @@
     "symfony/password-hasher": {
         "version": "v6.0.2"
     },
+    "symfony/phpunit-bridge": {
+        "version": "6.0",
+        "recipe": {
+            "repo": "github.com/symfony/recipes",
+            "branch": "main",
+            "version": "5.3",
+            "ref": "07ce01a897311647520b43d4ddddad9537b99ba6"
+        },
+        "files": [
+            "./.env.test",
+            "./bin/phpunit",
+            "./phpunit.xml.dist",
+            "./tests/bootstrap.php"
+        ]
+    },
     "symfony/polyfill-intl-grapheme": {
         "version": "v1.24.0"
     },
@@ -301,16 +321,10 @@
     "symfony/polyfill-mbstring": {
         "version": "v1.24.0"
     },
-    "symfony/polyfill-php81": {
-        "version": "v1.24.0"
-    },
     "symfony/property-access": {
         "version": "v6.0.2"
     },
     "symfony/property-info": {
-        "version": "v6.0.2"
-    },
-    "symfony/proxy-manager-bridge": {
         "version": "v6.0.2"
     },
     "symfony/routing": {

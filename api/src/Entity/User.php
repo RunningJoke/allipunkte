@@ -8,86 +8,63 @@ use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 use Symfony\Component\Security\Core\User\UserInterface;
-use ApiPlatform\Core\Annotation\ApiResource;
+use ApiPlatform\Metadata\ApiResource;
+use ApiPlatform\Metadata\Get;
+use ApiPlatform\Metadata\GetCollection;
+use ApiPlatform\Metadata\Put;
 use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
-use Symfony\Component\Serializer\Annotation\Groups;
+use Symfony\Component\Serializer\Attribute\Groups;
 
-/**
- * @ApiResource(
- * normalizationContext={"groups"={"USER_READ"}},
- * attributes={"security"="is_granted('ROLE_USER')", "pagination_enabled" = false},
- *     collectionOperations={
- *         "get"
- *     },
- *     itemOperations={
- *         "get",
- *         "put"={"security"="is_granted('ROLE_ADMIN')"},
- *     }))
- * @ORM\Entity(repositoryClass="App\Repository\UserRepository")
- * @UniqueEntity(fields={"username"}, message="There is already an account with this username")
- */
+#[ORM\Entity(repositoryClass: \App\Repository\UserRepository::class)]
+#[UniqueEntity(fields: ['username'], message: 'There is already an account with this username')]
+#[ApiResource(
+    operations: [
+        new GetCollection(),
+        new Get(),
+        new Put(security: "is_granted('ROLE_ADMIN')"),
+    ],
+    normalizationContext: ['groups' => ['USER_READ']],
+    security: "is_granted('ROLE_USER')",
+    paginationEnabled: false,
+)]
 class User implements UserInterface, PasswordAuthenticatedUserInterface
 {
-    /**
-     * @ORM\Id()
-     * @ORM\GeneratedValue()
-     * @ORM\Column(type="integer")
-     */
+    #[ORM\Id]
+    #[ORM\GeneratedValue]
+    #[ORM\Column(type: 'integer')]
     private $id;
 
-    /**
-     * @ORM\Column(type="string", length=255)
-     */
+    #[ORM\Column(type: 'string', length: 255)]
     private $firstname;
 
-    /**
-     * @ORM\Column(type="string", length=255)
-     */
+    #[ORM\Column(type: 'string', length: 255)]
     private $lastname;
 
-    /**
-     * @ORM\Column(type="string", length=255)
-     */
+    #[ORM\Column(type: 'string', length: 255)]
     private $username;
 
-    /**
-     * @ORM\Column(type="string", length=255)
-     */
+    #[ORM\Column(type: 'string', length: 255)]
     private $license;
 
-    /**
-     * @ORM\Column(type="string", length=255)
-     */
+    #[ORM\Column(type: 'string', length: 255)]
     private $password;
 
-    /**
-     * @ORM\Column(type="string", length=255)
-     */
+    #[ORM\Column(type: 'string', length: 255)]
     private $mail;
 
-    /**
-     * @ORM\Column(type="json", nullable=true)
-     */
+    #[ORM\Column(type: 'json', nullable: true)]
     private $roles = [];
 
-    /**
-     * @ORM\OneToMany(targetEntity="App\Entity\Score", mappedBy="user")
-     */
+    #[ORM\OneToMany(targetEntity: \App\Entity\Score::class, mappedBy: 'user')]
     private $scores;
 
-    /**
-     * @ORM\OneToMany(targetEntity="App\Entity\Transaction", mappedBy="origin")
-     */
+    #[ORM\OneToMany(targetEntity: \App\Entity\Transaction::class, mappedBy: 'origin')]
     private $sentTransactions;
 
-    /**
-     * @ORM\OneToMany(targetEntity="App\Entity\Transaction", mappedBy="target")
-     */
+    #[ORM\OneToMany(targetEntity: \App\Entity\Transaction::class, mappedBy: 'target')]
     private $receivedTransactions;
 
-    /**
-     * @ORM\OneToMany(targetEntity=Petition::class, mappedBy="createUser")
-     */
+    #[ORM\OneToMany(targetEntity: Petition::class, mappedBy: 'createUser')]
     private $petitions;
 
     public function __construct()
@@ -98,17 +75,13 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         $this->petitions = new ArrayCollection();
     }
 
-    /**
-     * @Groups({"USER_READ"})
-     */
+    #[Groups(['USER_READ'])]
     public function getId(): ?int
     {
         return $this->id;
     }
 
-    /**
-     * @Groups({"USER_READ"})
-     */
+    #[Groups(['USER_READ'])]
     public function getFirstname(): ?string
     {
         return $this->firstname;
@@ -121,9 +94,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         return $this;
     }
 
-    /**
-     * @Groups({"USER_READ"})
-     */
+    #[Groups(['USER_READ'])]
     public function getLastname(): ?string
     {
         return $this->lastname;
@@ -141,9 +112,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         return $this->getUsername();
     }
 
-    /**
-     * @Groups({"USER_READ_ADMIN"})
-     */
+    #[Groups(['USER_READ_ADMIN'])]
     public function getUsername(): ?string
     {
         return $this->username;
@@ -156,9 +125,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         return $this;
     }
 
-    /**
-     * @Groups({"USER_READ_ADMIN"})
-     */
+    #[Groups(['USER_READ_ADMIN'])]
     public function getLicense(): ?string
     {
         return $this->license;
@@ -184,9 +151,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         return $this;
     }
 
-    /**
-     * @Groups({"USER_READ_ADMIN"})
-     */
+    #[Groups(['USER_READ_ADMIN'])]
     public function getMail(): ?string
     {
         return $this->mail;
@@ -199,7 +164,8 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         return $this;
     }
 
-    public function eraseCredentials() {
+    #[\Deprecated]
+    public function eraseCredentials(): void {
         
     }
 
@@ -217,10 +183,10 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
 
     /**
      * @return Collection|Score[]
-     * 
-     * @Groups({"USER_READ_ADMIN"})
+     *
      *
      */
+    #[Groups(['USER_READ_ADMIN'])]
     public function getScores(): Collection
     {
         return $this->scores;
@@ -320,17 +286,13 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
                 
     }
 
-    /**
-     * @Groups({"USER_READ_ADMIN"})
-     */
+    #[Groups(['USER_READ_ADMIN'])]
     public function isIsCreator() : bool
     {
         return in_array('ROLE_CREATOR',$this->getRoles());
     }
     
-    /**
-     * @Groups({"USER_READ_ADMIN"})
-     */
+    #[Groups(['USER_READ_ADMIN'])]
     public function isIsAdmin() : bool
     {
         return in_array('ROLE_ADMIN',$this->getRoles());

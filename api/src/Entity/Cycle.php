@@ -5,22 +5,22 @@ namespace App\Entity;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
-use ApiPlatform\Core\Annotation\ApiResource;
-use Symfony\Component\Serializer\Annotation\Groups;
+use ApiPlatform\Metadata\ApiResource;
+use ApiPlatform\Metadata\Get;
+use ApiPlatform\Metadata\GetCollection;
+use ApiPlatform\Metadata\Put;
+use Symfony\Component\Serializer\Attribute\Groups;
 
-/**
- * @ApiResource(
- * normalizationContext={"groups"={"CYCLE_READ"}},
- * attributes={"security"="is_granted('ROLE_USER')"},
- *     collectionOperations={
- *         "get"
- *     },
- *     itemOperations={
- *         "get",
- *         "put"={"security"="is_granted('ROLE_ADMIN')"},
- *     })
- * @ORM\Entity(repositoryClass="App\Repository\CycleRepository")
- */
+#[ORM\Entity(repositoryClass: \App\Repository\CycleRepository::class)]
+#[ApiResource(
+    operations: [
+        new GetCollection(),
+        new Get(),
+        new Put(security: "is_granted('ROLE_ADMIN')"),
+    ],
+    normalizationContext: ['groups' => ['CYCLE_READ']],
+    security: "is_granted('ROLE_USER')",
+)]
 class Cycle
 {
 
@@ -34,53 +34,36 @@ class Cycle
      */
     const STATUS_CLOSED = 1;
 
-    /**
-     * @ORM\Id()
-     * @ORM\GeneratedValue()
-     * @ORM\Column(type="integer")
-     */
+    #[ORM\Id]
+    #[ORM\GeneratedValue]
+    #[ORM\Column(type: 'integer')]
     private $id;
 
-    /**
-     * @ORM\Column(type="string", length=255)
-     */
+    #[ORM\Column(type: 'string', length: 255)]
     private $name;
 
-    /**
-     * @ORM\Column(type="string", length=255)
-     */
+    #[ORM\Column(type: 'string', length: 255)]
     private $description;
 
-    /**
-     * @ORM\Column(type="date")
-     */
+    #[ORM\Column(type: 'date')]
     private $from_date;
 
-    /**
-     * @ORM\Column(type="date")
-     */
+    #[ORM\Column(type: 'date')]
     private $to_date;
 
-    /**
-     * @ORM\OneToMany(targetEntity="App\Entity\Score", mappedBy="cycle", orphanRemoval=true)
-     */
+    #[ORM\OneToMany(targetEntity: \App\Entity\Score::class, mappedBy: 'cycle', orphanRemoval: true)]
     private $scores;
 
-    /**
-     * @ORM\OneToMany(targetEntity="App\Entity\Transaction", mappedBy="cycle", orphanRemoval=true)
-     */
+    #[ORM\OneToMany(targetEntity: \App\Entity\Transaction::class, mappedBy: 'cycle', orphanRemoval: true)]
     private $transactions;
 
-    /**
-     * @ORM\Column(type="integer", options={"default" : 0})
-     */
+    #[ORM\Column(type: 'integer', options: ['default' => 0])]
     private $status;
 
     /**
-     * @ORM\Column(type="integer", options={"default" : 0})
-     * 
      * cost per point is saving the data in cents!
      */
+    #[ORM\Column(type: 'integer', options: ['default' => 0])]
     private $costPerPoint;
 
     public function __construct()
@@ -90,18 +73,16 @@ class Cycle
     }
 
     /**
-     * @Groups({"CYCLE_READ", "USER_READ_ADMIN"})
      * @return int|null
      *
      */
+    #[Groups(['CYCLE_READ', 'USER_READ_ADMIN'])]
     public function getId(): ?int
     {
         return $this->id;
     }
 
-    /**
-     * @Groups({"CYCLE_READ"})
-     */
+    #[Groups(['CYCLE_READ'])]
     public function getName(): ?string
     {
         return $this->name;
@@ -114,9 +95,7 @@ class Cycle
         return $this;
     }
 
-    /**
-     * @Groups({"CYCLE_READ"})
-     */
+    #[Groups(['CYCLE_READ'])]
     public function getDescription(): ?string
     {
         return $this->description;
@@ -129,9 +108,7 @@ class Cycle
         return $this;
     }
 
-    /**
-     * @Groups({"CYCLE_READ"})
-     */
+    #[Groups(['CYCLE_READ'])]
     public function getFromDate(): ?\DateTimeInterface
     {
         return $this->from_date;
@@ -139,14 +116,13 @@ class Cycle
 
     public function setFromDate(\DateTimeInterface $from_date): self
     {
-        $this->from_date = $from_date;
+        // DBAL 4 'date' columns only accept \DateTime, the serializer hands over \DateTimeImmutable
+        $this->from_date = \DateTime::createFromInterface($from_date);
 
         return $this;
     }
 
-    /**
-     * @Groups({"CYCLE_READ"})
-     */
+    #[Groups(['CYCLE_READ'])]
     public function getToDate(): ?\DateTimeInterface
     {
         return $this->to_date;
@@ -154,7 +130,7 @@ class Cycle
 
     public function setToDate(\DateTimeInterface $to_date): self
     {
-        $this->to_date = $to_date;
+        $this->to_date = \DateTime::createFromInterface($to_date);
 
         return $this;
     }
@@ -233,9 +209,7 @@ class Cycle
         return $this;
     }
 
-    /**
-     * @Groups({"CYCLE_READ"})
-     */
+    #[Groups(['CYCLE_READ'])]
     public function getCostPerPoint(): ?int
     {
         return $this->costPerPoint;

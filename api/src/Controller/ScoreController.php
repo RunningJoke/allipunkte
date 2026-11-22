@@ -6,8 +6,8 @@ use App\Entity\Cycle;
 use App\Entity\Transaction;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\HttpFoundation\Request;
-use ApiPlatform\Core\Api\IriConverterInterface;
-use Symfony\Component\Routing\Annotation\Route;
+use ApiPlatform\Metadata\IriConverterInterface;
+use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\Serializer\Normalizer\NormalizerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -25,9 +25,7 @@ class ScoreController extends AbstractController
         $this->normalizer = $normalizer;
     }
     
-    /**
-     * @Route("/myScore", name="actualScore", methods={"GET"})
-     */
+    #[Route(path: '/myScore', name: 'actualScore', methods: ['GET'])]
     public function getScoreOfLoggedInUser(Request $request) {
         $this->denyAccessUnlessGranted("ROLE_USER");
         
@@ -46,9 +44,7 @@ class ScoreController extends AbstractController
     }
 
     
-    /**
-     * @Route("api/scores/{id}/setPaymentStatus", name="score_update_payment_status", methods={"POST"})
-     */
+    #[Route(path: 'api/scores/{id}/setPaymentStatus', name: 'score_update_payment_status', methods: ['POST'])]
     public function setPaymentStatus(int $id, Request $request)
     {
         $this->denyAccessUnlessGranted("ROLE_ADMIN");
@@ -63,9 +59,7 @@ class ScoreController extends AbstractController
 
     
     
-    /**
-     * @Route("/transfers", name="own_transfers", methods={"GET"})
-     */
+    #[Route(path: '/transfers', name: 'own_transfers', methods: ['GET'])]
     public function getList( Request $request)
     {
         $this->denyAccessUnlessGranted("ROLE_USER");
@@ -96,19 +90,17 @@ class ScoreController extends AbstractController
     {
         return [
             'id' => $transaction->getId(),
-            'origin' => $this->iriConverter->getIriFromItem($transaction->getOrigin()),
-            'target' => $this->iriConverter->getIriFromItem($transaction->getTarget()),
+            'origin' => $this->iriConverter->getIriFromResource($transaction->getOrigin()),
+            'target' => $this->iriConverter->getIriFromResource($transaction->getTarget()),
             'description' => $transaction->getDescription(),
             'amount' => $transaction->getAmount(),
             'timestamp' => $transaction->getTimestamp()->format(\DateTimeInterface::ATOM),
-            'cycle' => $this->iriConverter->getIriFromItem($transaction->getCycle()),
+            'cycle' => $this->iriConverter->getIriFromResource($transaction->getCycle()),
             'createdPoints' => $transaction->getCreatedPoints(),
         ];
     }
 
-    /**
-     * @Route("/transfer", name="score_transfer", methods={"POST"})
-     */
+    #[Route(path: '/transfer', name: 'score_transfer', methods: ['POST'])]
     public function transfer( Request $request)
     {
         $this->denyAccessUnlessGranted('ROLE_USER');
@@ -176,7 +168,7 @@ class ScoreController extends AbstractController
         /**
          * @var \App\Entity\User
          */
-        $transactionTargetUser = $this->iriConverter->getItemFromIri($transactionTargetIRI);
+        $transactionTargetUser = $this->iriConverter->getResourceFromIri($transactionTargetIRI);
 
         $transactionAmount = $transaction['amount'];          
         $transactionDescription = $transaction['description'];

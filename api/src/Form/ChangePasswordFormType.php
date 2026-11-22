@@ -23,15 +23,13 @@ class ChangePasswordFormType extends AbstractType
                         'class' => 'form-control'
                     ],
                     'constraints' => [
-                        new NotBlank([
-                            'message' => 'Bitte gib ein Passwort an',
-                        ]),
-                        new Length([
-                            'min' => 6,
-                            'minMessage' => 'Dein Passwort muss mindestens {{ limit }} Zeichen umfassen',
-                            // max length allowed by Symfony for security reasons
-                            'max' => 4096,
-                        ]),
+                        new NotBlank(message: 'Bitte gib ein Passwort an'),
+                        // max length allowed by Symfony for security reasons
+                        new Length(
+                            min: 6,
+                            minMessage: 'Dein Passwort muss mindestens {{ limit }} Zeichen umfassen',
+                            max: 4096,
+                        ),
                     ],
                     'label' => 'Neues Passwort',
                 ],

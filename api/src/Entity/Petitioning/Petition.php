@@ -4,75 +4,59 @@ namespace App\Entity\Petitioning;
 
 use App\Entity\User;
 use Doctrine\ORM\Mapping as ORM;
-use ApiPlatform\Core\Annotation\ApiResource;
+use ApiPlatform\Metadata\ApiResource;
+use ApiPlatform\Metadata\Get;
+use ApiPlatform\Metadata\GetCollection;
+use ApiPlatform\Metadata\Post;
+use ApiPlatform\Metadata\Put;
 use App\Repository\Petitioning\PetitionRepository;
-use Symfony\Component\Serializer\Annotation\Groups;
+use Symfony\Component\Serializer\Attribute\Groups;
 
-/**
- * @ORM\Entity(repositoryClass=PetitionRepository::class)
- */
 #[ApiResource(
+    operations: [
+        new GetCollection(),
+        new Post(),
+        new Get(),
+        new Put(securityPostDenormalize: "is_granted('PETITION_CAN_UPDATE', previous_object)"),
+    ],
     normalizationContext: ['groups' => ['PETITION_READ']],
-    attributes: ['security' => "is_granted('ROLE_USER')", "pagination_enabled" => false],
-    itemOperations: [
-        "get",
-        "put" => ['security_post_denormalize' => "is_granted('PETITION_CAN_UPDATE',previous_object)"]
-    ]
- )
- ]
+    security: "is_granted('ROLE_USER')",
+    paginationEnabled: false,
+)]
+#[ORM\Entity(repositoryClass: PetitionRepository::class)]
 class Petition
 {
-    /**
-     * @ORM\Id
-     * @ORM\GeneratedValue
-     * @ORM\Column(type="integer")
-     */
+    #[ORM\Id]
+    #[ORM\GeneratedValue]
+    #[ORM\Column(type: 'integer')]
     private $id;
 
-    /**
-     * @ORM\ManyToOne(targetEntity=User::class, inversedBy="petitions")
-     * @ORM\JoinColumn(nullable=false)
-     */
+    #[ORM\JoinColumn(nullable: false)]
+    #[ORM\ManyToOne(targetEntity: User::class, inversedBy: 'petitions')]
     private $createUser;
 
-    /**
-     * @ORM\Column(type="datetime")
-     */
+    #[ORM\Column(type: 'datetime')]
     private $createDate;
 
-    /**
-     * @ORM\Column(type="string", length=255)
-     */
+    #[ORM\Column(type: 'string', length: 255)]
     private $title;
 
-    /**
-     * @ORM\Column(type="text", options={"default" : ""})
-     */
+    #[ORM\Column(type: 'text', options: ['default' => ''])]
     private $description;
 
-    /**
-     * @ORM\Column(type="string", length=255, options={"default" : "open"})
-     */
+    #[ORM\Column(type: 'string', length: 255, options: ['default' => 'open'])]
     private $status;
 
-    /**
-     * @ORM\Column(type="datetime")
-     */
+    #[ORM\Column(type: 'datetime')]
     private $dueDate;
 
-    /**
-     * @ORM\Column(type="integer", options={"default" : 1})
-     */
+    #[ORM\Column(type: 'integer', options: ['default' => 1])]
     private $openPositions;
 
-    /**
-     * @ORM\Column(type="integer", options={"default" : 0})
-     */
+    #[ORM\Column(type: 'integer', options: ['default' => 0])]
     private $filledPositions;
 
-    /**
-     * @ORM\Column(type="integer", options={"default" : 0})
-     */
+    #[ORM\Column(type: 'integer', options: ['default' => 0])]
     private $offeredPoints;
 
     #[Groups(["PETITION_READ"])]
@@ -102,7 +86,8 @@ class Petition
 
     public function setCreateDate(\DateTimeInterface $createDate): self
     {
-        $this->createDate = $createDate;
+        // DBAL 4 'datetime' columns only accept \DateTime, the serializer hands over \DateTimeImmutable
+        $this->createDate = \DateTime::createFromInterface($createDate);
 
         return $this;
     }
@@ -154,7 +139,7 @@ class Petition
 
     public function setDueDate(\DateTimeInterface $dueDate): self
     {
-        $this->dueDate = $dueDate;
+        $this->dueDate = \DateTime::createFromInterface($dueDate);
 
         return $this;
     }

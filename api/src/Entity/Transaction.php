@@ -3,57 +3,38 @@
 namespace App\Entity;
 
 use Doctrine\ORM\Mapping as ORM;
-use ApiPlatform\Core\Annotation\ApiResource;
 
-/**
- * @ORM\Entity(repositoryClass="App\Repository\TransactionRepository")
- * @ORM\HasLifecycleCallbacks
- */
+#[ORM\Entity(repositoryClass: \App\Repository\TransactionRepository::class)]
+#[ORM\HasLifecycleCallbacks]
 class Transaction
 {
-    /**
-     * @ORM\Id()
-     * @ORM\GeneratedValue()
-     * @ORM\Column(type="integer")
-     */
+    #[ORM\Id]
+    #[ORM\GeneratedValue]
+    #[ORM\Column(type: 'integer')]
     private $id;
 
-    /**
-     * @ORM\ManyToOne(targetEntity="App\Entity\User", inversedBy="sentTransactions")
-     * @ORM\JoinColumn(nullable=false)
-     */
+    #[ORM\JoinColumn(nullable: false)]
+    #[ORM\ManyToOne(targetEntity: \App\Entity\User::class, inversedBy: 'sentTransactions')]
     private $origin;
 
-    /**
-     * @ORM\ManyToOne(targetEntity="App\Entity\User", inversedBy="receivedTransactions")
-     * @ORM\JoinColumn(nullable=false)
-     */
+    #[ORM\JoinColumn(nullable: false)]
+    #[ORM\ManyToOne(targetEntity: \App\Entity\User::class, inversedBy: 'receivedTransactions')]
     private $target;
 
-    /**
-     * @ORM\Column(type="string", length=255)
-     */
+    #[ORM\Column(type: 'string', length: 255)]
     private $description;
 
-    /**
-     * @ORM\Column(type="integer")
-     */
+    #[ORM\Column(type: 'integer')]
     private $amount;
     
-    /**
-     * @ORM\Column(type="datetime")
-     */
+    #[ORM\Column(type: 'datetime')]
     private $timestamp;
     
-    /**
-     * @ORM\Column(type="boolean")
-     */
+    #[ORM\Column(type: 'boolean')]
     private $created_points;
     
-    /**
-     * @ORM\ManyToOne(targetEntity="App\Entity\Cycle", inversedBy="transactions")
-     * @ORM\JoinColumn(nullable=false)
-     */
+    #[ORM\JoinColumn(nullable: false)]
+    #[ORM\ManyToOne(targetEntity: \App\Entity\Cycle::class, inversedBy: 'transactions')]
     private $cycle;
 
     public function getId(): ?int
@@ -139,9 +120,7 @@ class Transaction
         return $this->timestamp;
     }
     
-    /**
-     * @ORM\PrePersist
-     */
+    #[ORM\PrePersist]
     public function addTimestamp() {
         $this->timestamp = new \DateTime();
     }

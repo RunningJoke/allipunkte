@@ -20,5 +20,7 @@ framework:
 when@test:
     framework:
         test: true
+        # API tests pin the Symfony 6 behaviour where PHP \Error escapes the kernel (prod still answers 500)
+        handle_all_throwables: false
         session:
             storage_factory_id: session.storage.factory.mock_file
