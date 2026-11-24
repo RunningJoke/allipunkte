@@ -171,8 +171,8 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
 
     
     public function getRoles() : array {
-        //always add the user role to an authenticated user           
-        return  array_merge($this->roles,["ROLE_USER"]);
+        //always add the user role to an authenticated user, without duplicates (#73)
+        return array_values(array_unique(array_merge($this->roles ?? [], ["ROLE_USER"])));
     }
 
     public function setRoles(?array $roles): self

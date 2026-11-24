@@ -54,8 +54,9 @@ class UserManagementTest extends ApiTestCase
         $em = $this->freshEm();
         $user = $em->getRepository(User::class)->findOneBy(['username' => 'anna']);
         self::assertNotNull($user);
-        // getRoles() merges ROLE_USER in again, so it can appear twice; only membership is pinned
-        self::assertContains('ROLE_USER', $user->getRoles());
+        // ROLE_USER appears exactly once, even though it is stored and added again (#73)
+        self::assertSame(['ROLE_USER'], array_values(array_filter($user->getRoles(), fn ($r) => $r === 'ROLE_USER')));
+        self::assertSame($user->getRoles(), array_values(array_unique($user->getRoles())));
         self::assertNotContains('ROLE_ADMIN', $user->getRoles());
 
         $score = $user->getScoreForCycle($em->getRepository(Cycle::class)->findCurrentCycle());
@@ -160,24 +161,23 @@ class UserManagementTest extends ApiTestCase
         self::assertSame(['status' => 400, 'message' => 'Invalid request'], $this->decode($response));
     }
 
-    public function testSetTargetPointsWithoutActiveCycleFailsWithTypeError(): void
+    public function testSetTargetPointsWithoutActiveCycleIs404(): void
     {
-        // NOTE: current behaviour, possibly a bug: with no active cycle findCurrentCycle() returns null,
-        // which getScoreForCycle(Cycle $cycle) rejects, so the 404 branch is never reached.
         $this->endCurrentCycle();
 
-        $this->expectException(\TypeError::class);
-        $this->jsonRequest('POST', '/api/users/3/setTargetPoints', ['newTargetScore' => 42], 'admin');
+        $response = $this->jsonRequest('POST', '/api/users/3/setTargetPoints', ['newTargetScore' => 42], 'admin');
+
+        self::assertSame(404, $response->getStatusCode());
+        self::assertSame(['status' => 404, 'message' => 'No active cycle'], $this->decode($response));
     }
 
     // ---- POST /updatePassword (user_update_password, own password) ----------
 
-    public function testUpdatePasswordAnonymousFailsWithTypeError(): void
+    public function testUpdatePasswordRequiresLogin(): void
     {
-        // NOTE: current behaviour, possibly a bug: /updatePassword has no access check. An anonymous
-        // request reaches hashPassword(null) and crashes instead of answering 401.
-        $this->expectException(\TypeError::class);
-        $this->jsonRequest('POST', '/updatePassword', ['oldPassword' => '1234', 'newPassword' => 'abcdef', 'newPasswordVerification' => 'abcdef']);
+        $response = $this->jsonRequest('POST', '/updatePassword', ['oldPassword' => '1234', 'newPassword' => 'abcdef', 'newPasswordVerification' => 'abcdef']);
+
+        self::assertSame(401, $response->getStatusCode());
     }
 
     public function testUpdatePasswordChangesOwnPassword(): void
@@ -275,10 +275,8 @@ class UserManagementTest extends ApiTestCase
         self::assertSame(['status' => 400, 'message' => 'invalid request'], $this->decode($response));
     }
 
-    public function testUpdatePasswordAdminWithUnknownUserIriIs500(): void
+    public function testUpdatePasswordAdminWithUnknownUserIriIs400(): void
     {
-        // NOTE: current behaviour, possibly a bug: ItemNotFoundException is not caught, so an unknown
-        // IRI gives a 500 instead of the 400 "invalid request" used for the other invalid inputs.
         $response = $this->jsonRequest(
             'POST',
             '/updatePasswordAdmin',
@@ -286,8 +284,8 @@ class UserManagementTest extends ApiTestCase
             'admin'
         );
 
-        self::assertSame(500, $response->getStatusCode());
-        self::assertStringContainsString('Item not found for "/users/999"', (string) $this->decode($response)['detail']);
+        self::assertSame(400, $response->getStatusCode());
+        self::assertSame(['status' => 400, 'message' => 'invalid request'], $this->decode($response));
     }
 
     private function currentTargetOf(string $username): int

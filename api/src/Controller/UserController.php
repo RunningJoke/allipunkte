@@ -7,6 +7,8 @@ use App\Repository\UserRepository;
 use App\Repository\CycleRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use ApiPlatform\Metadata\IriConverterInterface;
+use ApiPlatform\Metadata\Exception\InvalidArgumentException;
+use ApiPlatform\Metadata\Exception\ItemNotFoundException;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Bundle\SecurityBundle\Security;
 use Symfony\Component\Routing\Attribute\Route;
@@ -108,11 +110,17 @@ class UserController extends AbstractController
             return $this->json(['status' => 400, 'message' => 'Invalid request'],400);
         }
 
+        //there is no score to update while no cycle is active (#68)
+        $currentCycle = $this->cycleRepository->findCurrentCycle();
+        if($currentCycle === null) {
+            return $this->json(['status' => 404, 'message' => 'No active cycle'],404);
+        }
+
         //fetch the score for the active cycle
         /**
          * @var Score
          */
-        $currentScore = $targetUser->getScoreForCycle($this->cycleRepository->findCurrentCycle());
+        $currentScore = $targetUser->getScoreForCycle($currentCycle);
 
         if($currentScore === null) {
             return $this->json(['status' => 404, 'message' => 'No active cycle score found'],404);
@@ -129,8 +137,10 @@ class UserController extends AbstractController
 
     #[Route(path: '/updatePassword', name: 'user_update_password', methods: ['POST'])]
     public function updatePassword(Request $request, Security $security)
-    {        
-        
+    {
+        // anonymous requests get a 401 like every other protected endpoint (#64)
+        $this->denyAccessUnlessGranted('ROLE_USER');
+
         /**
          * @var UserInterface
          */
@@ -169,7 +179,12 @@ class UserController extends AbstractController
             return $this->json(['status' => 400, 'message' => 'invalid request'],400);
         }
 
-        $targetUser = $converter->getResourceFromIri($jsonArray['targetUser']);
+        //an IRI that does not resolve is invalid input like any other (#66)
+        try {
+            $targetUser = $converter->getResourceFromIri($jsonArray['targetUser']);
+        } catch (ItemNotFoundException|InvalidArgumentException) {
+            $targetUser = null;
+        }
         if(!$targetUser instanceof \App\Entity\User) {
             return $this->json(['status' => 400, 'message' => 'invalid request'],400);
         }
