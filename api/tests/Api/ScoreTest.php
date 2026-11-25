@@ -100,12 +100,12 @@ class ScoreTest extends ApiTestCase
         self::assertStringContainsString('Undefined array key "newPaymentStatus"', (string) $this->decode($response)['detail']);
     }
 
-    public function testSetPaymentStatusForUnknownScoreFailsWithError(): void
+    public function testSetPaymentStatusForUnknownScoreIs404(): void
     {
-        // NOTE: current behaviour, possibly a bug: findOneById() returns null and the method is called on
-        // it, which is an Error (500) and not a 404.
-        $this->expectException(\Error::class);
-        $this->jsonRequest('POST', '/api/scores/999/setPaymentStatus', ['newPaymentStatus' => 3], 'admin');
+        $response = $this->jsonRequest('POST', '/api/scores/999/setPaymentStatus', ['newPaymentStatus' => 3], 'admin');
+
+        self::assertSame(404, $response->getStatusCode());
+        self::assertSame('score not found', $this->decode($response)['detail']);
     }
 
     // ---- GET /transfers -----------------------------------------------------
@@ -300,38 +300,44 @@ class ScoreTest extends ApiTestCase
         self::assertSame('invalid json format', $this->decode($response)['detail']);
     }
 
-    public function testTransferToUnknownUserIs500(): void
+    public function testTransferToUnknownUserIs400(): void
     {
-        // NOTE: current behaviour, possibly a bug: an unknown target IRI raises ItemNotFoundException,
-        // which is not turned into a 400.
         $response = $this->jsonRequest('POST', '/transfer', $this->transferBody('/users/999', 1), 'creator');
 
-        self::assertSame(500, $response->getStatusCode());
-        self::assertStringContainsString('Item not found for "/users/999"', (string) $this->decode($response)['detail']);
+        self::assertSame(400, $response->getStatusCode());
+        self::assertSame('unknown target user', $this->decode($response)['detail']);
+        self::assertSame(0, $this->transactionCount());
     }
 
-    public function testTransferIsSilentlyIgnoredWhenCycleIsClosed(): void
+    public function testTransferToNonUserIriIs400(): void
     {
-        // NOTE: current behaviour, possibly a bug: with a closed cycle the request succeeds with
-        // userScore 0 and no error, so the frontend cannot tell that nothing was sent.
+        $response = $this->jsonRequest('POST', '/transfer', $this->transferBody('/cycles/1', 1), 'creator');
+
+        self::assertSame(400, $response->getStatusCode());
+        self::assertSame('unknown target user', $this->decode($response)['detail']);
+        self::assertSame(0, $this->transactionCount());
+    }
+
+    public function testTransferIsRejectedWhenCycleIsClosed(): void
+    {
         $this->closeCurrentCycle();
 
         $response = $this->jsonRequest('POST', '/transfer', $this->transferBody('/users/3', 5, 'x', true), 'creator');
 
-        self::assertSame(200, $response->getStatusCode());
-        self::assertSame(['userScore' => 0], $this->decode($response));
+        self::assertSame(409, $response->getStatusCode());
+        self::assertSame('Keine aktive Saison', $this->decode($response)['detail']);
         self::assertSame(0, $this->amountOf('basic'));
         self::assertSame(0, $this->transactionCount());
     }
 
-    public function testTransferIsSilentlyIgnoredWithoutActiveCycle(): void
+    public function testTransferIsRejectedWithoutActiveCycle(): void
     {
         $this->endCurrentCycle();
 
         $response = $this->jsonRequest('POST', '/transfer', $this->transferBody('/users/3', 5, 'x', true), 'creator');
 
-        self::assertSame(200, $response->getStatusCode());
-        self::assertSame(['userScore' => 0], $this->decode($response));
+        self::assertSame(409, $response->getStatusCode());
+        self::assertSame('Keine aktive Saison', $this->decode($response)['detail']);
         self::assertSame(0, $this->transactionCount());
     }
 

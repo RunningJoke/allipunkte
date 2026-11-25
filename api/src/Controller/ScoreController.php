@@ -4,14 +4,18 @@ namespace App\Controller;
 
 use App\Entity\Cycle;
 use App\Entity\Transaction;
+use App\Entity\User;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\HttpFoundation\Request;
 use ApiPlatform\Metadata\IriConverterInterface;
+use ApiPlatform\Metadata\Exception\InvalidArgumentException;
+use ApiPlatform\Metadata\Exception\ItemNotFoundException;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\Serializer\Normalizer\NormalizerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Exception\BadRequestException;
+use Symfony\Component\HttpKernel\Exception\ConflictHttpException;
 
 class ScoreController extends AbstractController
 {
@@ -50,6 +54,9 @@ class ScoreController extends AbstractController
         $this->denyAccessUnlessGranted("ROLE_ADMIN");
         //fetch score entry
         $scoreEntry = $this->em->getRepository(\App\Entity\Score::class)->findOneById($id);
+        if($scoreEntry === null) {
+            throw $this->createNotFoundException('score not found');
+        }
         $jsonArray = json_decode($request->getContent(),true);
         $scoreEntry->setPaymentStatus($jsonArray['newPaymentStatus']);
         $this->em->flush();
@@ -110,10 +117,10 @@ class ScoreController extends AbstractController
          */
         $cycleRepo = $this->em->getRepository(Cycle::class);      
         $currentCycle = $cycleRepo->findCurrentCycle();
-        //dont allow transactions when there is no cycle or the current cycle has been closed
+        //dont allow transactions when there is no cycle or the current cycle has been closed.
+        //Answer with an error so the client can tell that nothing was booked (#65)
         if($currentCycle === null || $currentCycle->getStatus() == Cycle::STATUS_CLOSED) {
-            //stop execution right here
-            return new JsonResponse(['userScore' => 0]);
+            throw new ConflictHttpException('Keine aktive Saison');
         }
            
         $requestBody = $request->getContent();        
@@ -165,10 +172,15 @@ class ScoreController extends AbstractController
         $canCreateScores = $this->isGranted("ROLE_ADMIN") || $this->isGranted("ROLE_CREATOR");
         $transactionTargetIRI = $transaction['target'];   
         
-        /**
-         * @var \App\Entity\User
-         */
-        $transactionTargetUser = $this->iriConverter->getResourceFromIri($transactionTargetIRI);
+        //an unknown or malformed target IRI is invalid input, not a server error (#66)
+        try {
+            $transactionTargetUser = $this->iriConverter->getResourceFromIri($transactionTargetIRI);
+        } catch (ItemNotFoundException|InvalidArgumentException) {
+            $transactionTargetUser = null;
+        }
+        if(!$transactionTargetUser instanceof User) {
+            throw new BadRequestException("unknown target user");
+        }
 
         $transactionAmount = $transaction['amount'];          
         $transactionDescription = $transaction['description'];
