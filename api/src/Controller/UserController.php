@@ -153,7 +153,10 @@ class UserController extends AbstractController
             return $this->json(['status' => 400, 'message' => 'invalid request'],400);
         }
 
-
+        //the current password must be confirmed, so a hijacked session alone cannot change it
+        if(!is_string($jsonArray['oldPassword']) || !$this->passwordHasher->isPasswordValid($currentUser, $jsonArray['oldPassword'])) {
+            return $this->json(['status' => 400, 'message' => 'invalid old password'],400);
+        }
 
         $newEncodedPassword = $this->passwordHasher->hashPassword($currentUser, $jsonArray['newPassword']);
         

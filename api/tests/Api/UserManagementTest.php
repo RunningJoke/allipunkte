@@ -212,10 +212,38 @@ class UserManagementTest extends ApiTestCase
 
     public function testUpdatePasswordWithoutFieldsIs400(): void
     {
-        // invalid input: oldPassword is not checked at all, but the other two fields are required
+        // invalid input: oldPassword, newPassword and newPasswordVerification are all required
         $response = $this->jsonRequest('POST', '/updatePassword', ['newPassword' => 'abcdef'], 'basic');
 
         self::assertSame(400, $response->getStatusCode());
+    }
+
+    public function testUpdatePasswordWithoutOldPasswordIs400AndKeepsOldPassword(): void
+    {
+        $response = $this->jsonRequest(
+            'POST',
+            '/updatePassword',
+            ['newPassword' => 'abcdef', 'newPasswordVerification' => 'abcdef'],
+            'basic'
+        );
+
+        self::assertSame(400, $response->getStatusCode());
+        self::assertSame(200, $this->jsonRequest('POST', '/jlogin', ['username' => 'basic', 'password' => '1234'])->getStatusCode());
+    }
+
+    public function testUpdatePasswordWithWrongOldPasswordIs400AndKeepsOldPassword(): void
+    {
+        $response = $this->jsonRequest(
+            'POST',
+            '/updatePassword',
+            ['oldPassword' => 'wrong', 'newPassword' => 'abcdef', 'newPasswordVerification' => 'abcdef'],
+            'basic'
+        );
+
+        self::assertSame(400, $response->getStatusCode());
+        self::assertSame(['status' => 400, 'message' => 'invalid old password'], $this->decode($response));
+        self::assertSame(200, $this->jsonRequest('POST', '/jlogin', ['username' => 'basic', 'password' => '1234'])->getStatusCode());
+        self::assertSame(401, $this->jsonRequest('POST', '/jlogin', ['username' => 'basic', 'password' => 'abcdef'])->getStatusCode());
     }
 
     // ---- POST /updatePasswordAdmin (user_update_password_admin) -----------
